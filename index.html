@@ -14,7 +14,7 @@
         .tab-active { border-bottom: 3px solid #0369a1; color: #0369a1; font-weight: 600; }
         .tab-inactive { border-bottom: 3px solid transparent; color: #78716c; }
         .tab-inactive:hover { color: #44403c; border-bottom: 3px solid #d6d3d1; }
-        .animate-fade-in { animation: fadeIn 0.4s ease-in-out; }
+        .animate-fade-in { animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
@@ -31,13 +31,6 @@
                 <input type="text" id="searchInput" placeholder="Search 1,000+ words..." class="w-full pl-10 pr-4 py-2 rounded-full border border-stone-300 bg-stone-50 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all text-sm">
             </div>
         </div>
-        
-        <div class="md:hidden px-4 pb-3">
-             <div class="relative w-full">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-stone-400">🔍</span>
-                <input type="text" id="mobileSearchInput" placeholder="Search 1,000+ words..." class="w-full pl-10 pr-4 py-2 rounded-lg border border-stone-300 bg-stone-50 focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm">
-            </div>
-        </div>
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <nav class="flex space-x-8 overflow-x-auto no-scrollbar">
@@ -51,17 +44,16 @@
 
     <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         
-        <!-- Search Results Panel -->
         <div id="searchResults" class="hidden mb-8 p-6 bg-sky-50 border border-sky-200 rounded-xl shadow-sm">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-semibold text-sky-900">Search Results</h2>
                 <button onclick="clearSearch()" class="text-sky-600 hover:text-sky-800 text-sm font-medium">✕ Clear</button>
             </div>
-            <div id="searchContent" class="space-y-4"></div>
+            <div id="searchContent" class="grid grid-cols-1 gap-4"></div>
         </div>
 
         <!-- Section: Overview -->
-        <section id="section-overview" class="block animate-fade-in">
+        <section id="section-overview" class="animate-fade-in">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-100 flex items-center gap-4">
                     <div class="text-4xl">📚</div>
@@ -73,24 +65,20 @@
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-100 flex items-center gap-4">
                     <div class="text-4xl">🔗</div>
                     <div>
-                        <div class="text-2xl font-bold text-stone-800" id="stat-clusters">--</div>
-                        <div class="text-sm text-stone-500 uppercase tracking-wide">Semantic Clusters</div>
+                        <div class="text-2xl font-bold text-stone-800" id="stat-clusters">0</div>
+                        <div class="text-sm text-stone-500 uppercase tracking-wide">Synonym Themes</div>
                     </div>
                 </div>
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-100 flex items-center gap-4">
                     <div class="text-4xl">⚖️</div>
                     <div>
-                        <div class="text-2xl font-bold text-stone-800" id="stat-pairs">--</div>
-                        <div class="text-sm text-stone-500 uppercase tracking-wide">Key Contrasts</div>
+                        <div class="text-2xl font-bold text-stone-800" id="stat-pairs">0</div>
+                        <div class="text-sm text-stone-500 uppercase tracking-wide">Antonym Pairs</div>
                     </div>
                 </div>
             </div>
-
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-100">
-                <h3 class="text-lg font-semibold text-stone-800 mb-4 text-center">High-Yield Study Clusters</h3>
-                <div class="chart-container">
-                    <canvas id="themeChart"></canvas>
-                </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-100 h-[400px]">
+                <canvas id="themeChart"></canvas>
             </div>
         </section>
 
@@ -99,368 +87,238 @@
             <div class="flex flex-col md:flex-row gap-6">
                 <div class="w-full md:w-1/3 flex flex-col gap-2 h-[60vh] overflow-y-auto pr-2" id="synonym-sidebar"></div>
                 <div class="w-full md:w-2/3 bg-white p-6 rounded-xl shadow-sm border border-stone-200 min-h-[60vh]" id="synonym-details">
-                    <div class="flex flex-col items-center justify-center h-full text-stone-400 text-center">
-                        <span class="text-5xl mb-4">👈</span>
-                        <p class="text-lg">Select a theme to explore GRE synonym pairs.</p>
-                    </div>
+                    <p class="text-center text-stone-400 mt-20">Select a theme from the left to explore clusters.</p>
                 </div>
             </div>
         </section>
 
         <!-- Section: Antonyms -->
         <section id="section-antonyms" class="hidden animate-fade-in">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" id="antonym-grid"></div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="antonym-grid"></div>
         </section>
 
-        <!-- Section: Malapropisms -->
+        <!-- Section: Traps -->
         <section id="section-malapropisms" class="hidden animate-fade-in">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="malapropism-grid"></div>
         </section>
     </main>
 
     <script>
-       const greData = {
-    synonyms: [
-        {
-            theme: "Criticize, Scold, or Reprove",
-            icon: "🗣️",
-            words: [
-                { word: "Castigate", def: "Reprimand harshly.", nuance: "Severe, often formal discipline." },
-                { word: "Chastise", def: "Reprimand severely.", nuance: "Often implies verbal or physical discipline[cite: 2]." },
-                { word: "Upbraid", def: "To reproach or scold[cite: 2].", nuance: "Finding fault with someone[cite: 2]." },
-                { word: "Reproach", def: "To express criticism towards[cite: 2].", nuance: "Blame mixed with disappointment[cite: 2]." },
-                { word: "Censure", def: "To express strong disapproval[cite: 2].", nuance: "Commonly used for official/government reprimands[cite: 2]." },
-                { word: "Excoriate", def: "To criticize very harshly[cite: 2].", nuance: "Stinging public disapproval[cite: 2]." },
-                { word: "Objurgate", def: "Express strong disapproval of[cite: 2].", nuance: "Formal or severe scolding[cite: 2]." },
-                { word: "Vituperate", def: "To criticize harshly; to berate[cite: 2].", nuance: "Savage or abusive verbal attack[cite: 2]." },
-                { word: "Rebuke", def: "Criticize severely or angrily[cite: 2].", nuance: "A sharp, direct check to behavior[cite: 2]." },
-                { word: "Denigrate", def: "Attack the good name and reputation of someone[cite: 2].", nuance: "Focuses on belittling or defaming[cite: 2]." }
+        const greData = {
+            synonyms: [
+                {
+                    theme: "Criticize, Scold, or Reprove",
+                    icon: "🗣️",
+                    words: [
+                        { word: "Castigate", def: "Reprimand harshly.", nuance: "Severe, often formal discipline." },
+                        { word: "Chastise", def: "Reprimand severely.", nuance: "Often implies verbal or physical discipline." },
+                        { word: "Upbraid", def: "To reproach or scold.", nuance: "Finding fault with someone." },
+                        { word: "Reproach", def: "To express criticism towards.", nuance: "Blame mixed with disappointment." },
+                        { word: "Censure", def: "To express strong disapproval.", nuance: "Commonly used for official/government reprimands." },
+                        { word: "Excoriate", def: "To criticize very harshly.", nuance: "Stinging public disapproval." },
+                        { word: "Objurgate", def: "Express strong disapproval of.", nuance: "Formal or severe scolding." },
+                        { word: "Vituperate", def: "To criticize harshly; to berate.", nuance: "Savage or abusive verbal attack." },
+                        { word: "Rebuke", def: "Criticize severely or angrily.", nuance: "A sharp, direct check to behavior." },
+                        { word: "Denigrate", def: "Attack the good name and reputation of someone.", nuance: "Focuses on belittling or defaming." }
+                    ]
+                },
+                {
+                    theme: "Praise, Respect, or Honor",
+                    icon: "🌟",
+                    words: [
+                        { word: "Venerate", def: "To respect deeply.", nuance: "Hallowed respect for age or tradition." },
+                        { word: "Lionize", def: "Assign great social importance to.", nuance: "Treating someone like a celebrity." },
+                        { word: "Exalt", def: "Praise or glorify.", nuance: "To lift up in rank or estimation." },
+                        { word: "Adulate", def: "To praise excessively.", nuance: "Extreme flattery, bordering on worship." },
+                        { word: "Approbatory", def: "Expressing praise or approval.", nuance: "A general state of agreement." },
+                        { word: "Laudable", def: "Worthy of high praise.", nuance: "Actions that deserve commendation." },
+                        { word: "Commendable", def: "Worthy of high praise.", nuance: "Standard word for praiseworthy efforts." }
+                    ]
+                },
+                {
+                    theme: "Stubborn, Inflexible, or Defiant",
+                    icon: "🧱",
+                    words: [
+                        { word: "Obdurate", def: "Stubbornly persistent in changing an opinion.", nuance: "Hardened against feeling or persuasion." },
+                        { word: "Intransigent", def: "Unwilling to change one's beliefs.", nuance: "Refusal to compromise in negotiations." },
+                        { word: "Obstinate", def: "Resistant to guidance; stubbornly persistent.", nuance: "Willful adherence to an opinion." },
+                        { word: "Recalcitrant", def: "Obstinately uncooperative attitude.", nuance: "Defiance of authority or discipline." },
+                        { word: "Intractable", def: "Hard to control or deal with.", nuance: "Applies to both people and complex problems." },
+                        { word: "Adamant", def: "Refusing to change one's mind.", nuance: "Unyielding; rooted in place." }
+                    ]
+                },
+                {
+                    theme: "Brief, Quiet, or Concise",
+                    icon: "✂️",
+                    words: [
+                        { word: "Laconic", def: "One who says very few words.", nuance: "Brevity to the point of appearing mysterious." },
+                        { word: "Terse", def: "Sparing in the use of words; abrupt.", nuance: "Often carries a negative, unfriendly tone." },
+                        { word: "Pithy", def: "Concise and full of meaning.", nuance: "Brief but forcefully expressive and positive." },
+                        { word: "Taciturn", def: "Habitually reserved and uncommunicative.", nuance: "A deep-seated personality trait." },
+                        { word: "Reticent", def: "Reluctant to draw attention to yourself.", nuance: "Disinclined to talk, often out of caution." }
+                    ]
+                },
+                {
+                    theme: "Talkative, Wordy, or Rambling",
+                    icon: "🦜",
+                    words: [
+                        { word: "Garrulous", def: "Full of trivial conversation.", nuance: "Rambling about unimportant matters." },
+                        { word: "Loquacious", def: "Tending to talk a great deal.", nuance: "General tendency toward being talkative." },
+                        { word: "Prolix", def: "Boring verbosity.", nuance: "Tedious, overly long speech or writing." },
+                        { word: "Verbose", def: "Using more words than needed.", nuance: "The literal definition of 'wordy'." },
+                        { word: "Voluble", def: "Talking or writing easily and continuously.", nuance: "Implies a smooth, rapid flow of speech." },
+                        { word: "Maunder", def: "Speak rapidly and incessantly.", nuance: "Confused or aimless chatter." }
+                    ]
+                },
+                {
+                    theme: "Difficult, Complicated, or Hidden",
+                    icon: "🧩",
+                    words: [
+                        { word: "Abstruse", def: "Difficult to understand; incomprehensible.", nuance: "Complex intellectual matter (e.g. physics)." },
+                        { word: "Recondite", def: "Difficult to understand; obscure.", nuance: "Little known or academic subjects." },
+                        { word: "Arcane", def: "Requiring secret or mysterious knowledge.", nuance: "Often implies hidden rituals or ancient info." },
+                        { word: "Esoteric", def: "Understandable by only an inner circle.", nuance: "Intended for a very specific, limited audience." },
+                        { word: "Inscrutable", def: "Not easily understood; unfathomable.", nuance: "Impossible to read (often used for expressions)." },
+                        { word: "Opaque", def: "Not clearly understood or expressed.", nuance: "Meaning that is blocked or not transparent." }
+                    ]
+                },
+                {
+                    theme: "Wealthy, Generous, or Abundant",
+                    icon: "💰",
+                    words: [
+                        { word: "Affluent", def: "Wealthy.", nuance: "Possessing material riches." },
+                        { word: "Munificent", def: "Very generous (with money).", nuance: "Lavish giving, often to others." },
+                        { word: "Largess", def: "Extreme generosity and giving.", nuance: "The act of being a benefactor." },
+                        { word: "Magnanimous", def: "Noble and generous in spirit.", nuance: "Generosity toward a rival or lesser person." },
+                        { word: "Copious", def: "In abundant supply.", nuance: "A large quantity of something." },
+                        { word: "Replete", def: "Completely stocked or furnished.", nuance: "Being full of something good." }
+                    ]
+                },
+                {
+                    theme: "Poor, Greedy, or Stingy",
+                    icon: "📉",
+                    words: [
+                        { word: "Destitute", def: "Poor enough to need help from others.", nuance: "Lacking the basic necessities of life." },
+                        { word: "Indigent", def: "Poor; having very little.", nuance: "A state of needing assistance." },
+                        { word: "Impecunious", def: "Lacking money; poor.", nuance: "Habitually having no money." },
+                        { word: "Penurious", def: "Lacking money; miserly.", nuance: "Can mean both poor or extremely stingy." },
+                        { word: "Parsimonious", def: "Extremely frugal; miserly.", nuance: "Unwilling to spend any money." },
+                        { word: "Avarice", def: "Greed.", nuance: "One of the 'deadly sins' of greed." },
+                        { word: "Pittance", def: "A small amount (of money).", nuance: "An inadequate, tiny payment." }
+                    ]
+                },
+                {
+                    theme: "Harmful, Destructive, or Evil",
+                    icon: "⚠️",
+                    words: [
+                        { word: "Deleterious", def: "Harmful to living things.", nuance: "Causing injury or damage." },
+                        { word: "Pernicious", def: "Exceedingly harmful.", nuance: "Harm that spreads in a hidden, subtle way." },
+                        { word: "Inimical", def: "Hostile.", nuance: "Conditions/environments that oppose life." },
+                        { word: "Detrimental", def: "Causing harm or injury.", nuance: "General word for being damaging." },
+                        { word: "Diabolical", def: "Extremely wicked; like the devil.", nuance: "Maliciously evil plans." },
+                        { word: "Malevolent", def: "Wishing evil to others.", nuance: "Rooted in intense ill-will." },
+                        { word: "Fell", def: "Terribly evil.", nuance: "Used for villains or lethal forces." }
+                    ]
+                },
+                {
+                    theme: "Bold, Brave, or Courageous",
+                    icon: "⚔️",
+                    words: [
+                        { word: "Intrepid", def: "Fearless.", nuance: "Brave in the face of danger." },
+                        { word: "Audacious", def: "Willing to be bold or take risks.", nuance: "Can imply either bravery or social rudeness." },
+                        { word: "Doughty", def: "Brave; bold; courageous.", nuance: "Often used for a persistent, gritty hero." },
+                        { word: "Mettlesome", def: "Filled with courage or valor.", nuance: "Having a resilient, spirited nature." },
+                        { word: "Plucky", def: "Marked by courage and determination.", nuance: "Often used for an underdog or small fighter." }
+                    ]
+                }
+            ],
+            antonyms: [
+                { pair: ["Mitigate", "Exacerbate"], concept: "Severity", w1: "Make less severe.", w2: "Make worse.", ex: "The ice served to mitigate the swelling, while the heat only exacerbated it." },
+                { pair: ["Auspicious", "Sinister"], concept: "Omens", w1: "Favorable.", w2: "Evil; threatening.", ex: "The bright sun was an auspicious start, but the dark clouds looked sinister." },
+                { pair: ["Munificent", "Parsimonious"], concept: "Spending", w1: "Very generous.", w2: "Extremely frugal/miserly.", ex: "The munificent donor gave millions, while the parsimonious heir saved every cent." },
+                { pair: ["Arduous", "Facile"], concept: "Difficulty", w1: "Demanding great effort.", w2: "Arrived at without effort; lacking depth.", ex: "Climbing Everest is arduous, but the tour guide's explanation was facile." },
+                { pair: ["Ephemeral", "Perennial"], concept: "Duration", w1: "Lasting a short time.", w2: "Lasting an indefinitely long time.", ex: "Fashion trends are ephemeral, but the search for truth is perennial." },
+                { pair: ["Pellucid", "Arcane"], concept: "Clarity", w1: "Transparently clear.", w2: "Secret or mysterious.", ex: "The prose was pellucid, making the arcane scientific law easy to grasp." }
+            ],
+            malapropisms: [
+                { word: "Enervate", sounds: "Energize", real: "To sap energy from.", ex: "The sun did not energize him; it enervated him." },
+                { word: "Restive", sounds: "Restful", real: "Restless; unruly under authority.", ex: "The crowd grew restive after three hours." },
+                { word: "Ingenuous", sounds: "Ingenious", real: "Naive and innocent.", ex: "Her ingenuous belief in strangers made her a target." },
+                { word: "Demur", sounds: "Demure", real: "To object or show reluctance.", ex: "He demurred when asked to work on Sunday." },
+                { word: "Equivocal", sounds: "Equivalent", real: "Confusing or ambiguous.", ex: "The test results were equivocal; we weren't sure what they meant." },
+                { word: "Venal", sounds: "Venial", real: "Susceptible to bribes; corrupt.", ex: "The venal official was easily bought." },
+                { word: "Prosaic", sounds: "Pros (Good)", real: "Dull and lacking imagination.", ex: "His prosaic mosaic was quite boring." }
             ]
-        },
-        {
-            theme: "Praise, Respect, or Honor",
-            icon: "🌟",
-            words: [
-                { word: "Venerate", def: "To respect deeply[cite: 2].", nuance: "Hallowed respect for age or tradition[cite: 2]." },
-                { word: "Lionize", def: "Assign great social importance to[cite: 2].", nuance: "Treating someone like a celebrity[cite: 2]." },
-                { word: "Exalt", def: "Praise or glorify[cite: 2].", nuance: "To lift up in rank or estimation[cite: 2]." },
-                { word: "Adulate", def: "To praise excessively[cite: 2].", nuance: "Extreme flattery, bordering on worship[cite: 2]." },
-                { word: "Approbatory", def: "Expressing praise or approval[cite: 2].", nuance: "A general state of agreement[cite: 2]." },
-                { word: "Laudable", def: "Worthy of high praise[cite: 2].", nuance: "Actions that deserve commendation[cite: 2]." },
-                { word: "Commendable", def: "Worthy of high praise[cite: 2].", nuance: "Standard word for praiseworthy efforts[cite: 2]." }
-            ]
-        },
-        {
-            theme: "Stubborn, Inflexible, or Defiant",
-            icon: "🧱",
-            words: [
-                { word: "Obdurate", def: "Stubbornly persistent in changing an opinion[cite: 2].", nuance: "Hardened against feeling or persuasion[cite: 2]." },
-                { word: "Intransigent", def: "Unwilling to change one's beliefs[cite: 2].", nuance: "Refusal to compromise in negotiations[cite: 2]." },
-                { word: "Obstinate", def: "Resistant to guidance; stubbornly persistent[cite: 2].", nuance: "Willful adherence to an opinion[cite: 2]." },
-                { word: "Recalcitrant", def: "Obstinately uncooperative attitude[cite: 2].", nuance: "Defiance of authority or discipline[cite: 2]." },
-                { word: "Intractable", def: "Hard to control or deal with[cite: 2].", nuance: "Applies to both people and complex problems[cite: 2]." },
-                { word: "Adamant", def: "Refusing to change one's mind[cite: 2].", nuance: "Unyielding; rooted in place[cite: 2]." }
-            ]
-        },
-        {
-            theme: "Brief, Quiet, or Concise",
-            icon: "✂️",
-            words: [
-                { word: "Laconic", def: "One who says very few words[cite: 2].", nuance: "Brevity to the point of appearing mysterious[cite: 2]." },
-                { word: "Terse", def: "Sparing in the use of words; abrupt[cite: 2].", nuance: "Often carries a negative, unfriendly tone[cite: 2]." },
-                { word: "Pithy", def: "Concise and full of meaning[cite: 2].", nuance: "Brief but forcefully expressive and positive[cite: 2]." },
-                { word: "Taciturn", def: "Habitually reserved and uncommunicative[cite: 2].", nuance: "A deep-seated personality trait[cite: 2]." },
-                { word: "Reticent", def: "Reluctant to draw attention to yourself[cite: 2].", nuance: "Disinclined to talk, often out of caution[cite: 2]." }
-            ]
-        },
-        {
-            theme: "Talkative, Wordy, or Rambling",
-            icon: "🦜",
-            words: [
-                { word: "Garrulous", def: "Full of trivial conversation[cite: 2].", nuance: "Rambling about unimportant matters[cite: 2]." },
-                { word: "Loquacious", def: "Tending to talk a great deal[cite: 2].", nuance: "General tendency toward being talkative[cite: 2]." },
-                { word: "Prolix", def: "Boring verbosity[cite: 2].", nuance: "Tedious, overly long speech or writing[cite: 2]." },
-                { word: "Verbose", def: "Using more words than needed[cite: 2].", nuance: "The literal definition of 'wordy'[cite: 2]." },
-                { word: "Voluble", def: "Talking or writing easily and continuously[cite: 2].", nuance: "Implies a smooth, rapid flow of speech[cite: 2]." },
-                { word: "Maunder", def: "Speak rapidly and incessantly[cite: 2].", nuance: "Confused or aimless chatter[cite: 2]." }
-            ]
-        },
-        {
-            theme: "Difficult, Complicated, or Hidden",
-            icon: "🧩",
-            words: [
-                { word: "Abstruse", def: "Difficult to understand; incomprehensible[cite: 2].", nuance: "Complex intellectual matter (e.g. physics)[cite: 2]." },
-                { word: "Recondite", def: "Difficult to understand; obscure[cite: 2].", nuance: "Little known or academic subjects[cite: 2]." },
-                { word: "Arcane", def: "Requiring secret or mysterious knowledge[cite: 2].", nuance: "Often implies hidden rituals or ancient info[cite: 2]." },
-                { word: "Esoteric", def: "Understandable by only an inner circle[cite: 2].", nuance: "Intended for a very specific, limited audience[cite: 2]." },
-                { word: "Inscrutable", def: "Not easily understood; unfathomable[cite: 2].", nuance: "Impossible to read (often used for expressions)[cite: 2]." },
-                { word: "Opaque", def: "Not clearly understood or expressed[cite: 2].", nuance: "Meaning that is blocked or not transparent[cite: 2]." }
-            ]
-        },
-        {
-            theme: "Wealthy, Generous, or Abundant",
-            icon: "💰",
-            words: [
-                { word: "Affluent", def: "Wealthy[cite: 2].", nuance: "Possessing material riches[cite: 2]." },
-                { word: "Munificent", def: "Very generous (with money)[cite: 2].", nuance: "Lavish giving, often to others[cite: 2]." },
-                { word: "Largess", def: "Extreme generosity and giving[cite: 2].", nuance: "The act of being a benefactor[cite: 2]." },
-                { word: "Magnanimous", def: "Noble and generous in spirit[cite: 2].", nuance: "Generosity toward a rival or lesser person[cite: 2]." },
-                { word: "Copious", def: "In abundant supply[cite: 2].", nuance: "A large quantity of something[cite: 2]." },
-                { word: "Replete", def: "Completely stocked or furnished[cite: 2].", nuance: "Being full of something good[cite: 2]." }
-            ]
-        },
-        {
-            theme: "Poor, Greedy, or Stingy",
-            icon: "📉",
-            words: [
-                { word: "Destitute", def: "Poor enough to need help from others[cite: 2].", nuance: "Lacking the basic necessities of life[cite: 2]." },
-                { word: "Indigent", def: "Poor; having very little[cite: 2].", nuance: "A state of needing assistance[cite: 2]." },
-                { word: "Impecunious", def: "Lacking money; poor[cite: 2].", nuance: "Habitually having no money[cite: 2]." },
-                { word: "Penurious", def: "Lacking money; miserly[cite: 2].", nuance: "Can mean both poor or extremely stingy[cite: 2]." },
-                { word: "Parsimonious", def: "Extremely frugal; miserly[cite: 2].", nuance: "Unwilling to spend any money[cite: 2]." },
-                { word: "Avarice", def: "Greed[cite: 2].", nuance: "One of the 'deadly sins' of greed[cite: 2]." },
-                { word: "Pittance", def: "A small amount (of money)[cite: 2].", nuance: "An inadequate, tiny payment[cite: 2]." }
-            ]
-        },
-        {
-            theme: "Harmful, Destructive, or Evil",
-            icon: "⚠️",
-            words: [
-                { word: "Deleterious", def: "Harmful to living things[cite: 2].", nuance: "Causing injury or damage[cite: 2]." },
-                { word: "Pernicious", def: "Exceedingly harmful[cite: 2].", nuance: "Harm that spreads in a hidden, subtle way[cite: 2]." },
-                { word: "Inimical", def: "Hostile[cite: 2].", nuance: "Conditions/environments that oppose life[cite: 2]." },
-                { word: "Detrimental", def: "Causing harm or injury[cite: 2].", nuance: "General word for being damaging[cite: 2]." },
-                { word: "Diabolical", def: "Extremely wicked; like the devil[cite: 2].", nuance: "Maliciously evil plans[cite: 2]." },
-                { word: "Malevolent", def: "Wishing evil to others[cite: 2].", nuance: "Rooted in intense ill-will[cite: 2]." },
-                { word: "Fell", def: "Terribly evil[cite: 2].", nuance: "Used for villains or lethal forces[cite: 2]." }
-            ]
-        },
-        {
-            theme: "Bold, Brave, or Courageous",
-            icon: "⚔️",
-            words: [
-                { word: "Intrepid", def: "Fearless[cite: 2].", nuance: "Brave in the face of danger[cite: 2]." },
-                { word: "Audacious", def: "Willing to be bold or take risks[cite: 2].", nuance: "Can imply either bravery or social rudeness[cite: 2]." },
-                { word: "Doughty", def: "Brave; bold; courageous[cite: 2].", nuance: "Often used for a persistent, gritty hero[cite: 2]." },
-                { word: "Mettlesome", def: "Filled with courage or valor[cite: 2].", nuance: "Having a resilient, spirited nature[cite: 2]." },
-                { word: "Plucky", def: "Marked by courage and determination[cite: 2].", nuance: "Often used for an underdog or small fighter[cite: 2]." }
-            ]
-        }
-    ],
-    antonyms: [
-        {
-            pair: ["Mitigate", "Exacerbate"],
-            concept: "Severity",
-            word1Def: "Make less severe[cite: 2].",
-            word2Def: "Make worse[cite: 2].",
-            example: "The ice served to <strong>mitigate</strong> the swelling, while the heat only <strong>exacerbated</strong> it[cite: 2]."
-        },
-        {
-            pair: ["Auspicious", "Sinister"],
-            concept: "Omens",
-            word1Def: "Favorable[cite: 2].",
-            word2Def: "Evil; threatening[cite: 2].",
-            example: "The bright sun was an <strong>auspicious</strong> start, but the dark clouds looked <strong>sinister</strong>[cite: 2]."
-        },
-        {
-            pair: ["Munificent", "Parsimonious"],
-            concept: "Spending",
-            word1Def: "Very generous[cite: 2].",
-            word2Def: "Extremely frugal/miserly[cite: 2].",
-            example: "The <strong>munificent</strong> donor gave millions, while the <strong>parsimonious</strong> heir saved every cent[cite: 2]."
-        },
-        {
-            pair: ["Arduous", "Facile"],
-            concept: "Difficulty",
-            word1Def: "Demanding great effort[cite: 2].",
-            word2Def: "Arrived at without effort; lacking depth[cite: 2].",
-            example: "Climbing Everest is <strong>arduous</strong>, but the tour guide's explanation was <strong>facile</strong>[cite: 2]."
-        },
-        {
-            pair: ["Ephemeral", "Perennial"],
-            concept: "Duration",
-            word1Def: "Lasting a short time[cite: 2].",
-            word2Def: "Lasting an indefinitely long time[cite: 2].",
-            example: "Fashion trends are <strong>ephemeral</strong>, but the search for truth is <strong>perennial</strong>[cite: 2]."
-        },
-        {
-            pair: ["Pellucid", "Arcane"],
-            concept: "Clarity",
-            word1Def: "Transparently clear[cite: 2].",
-            word2Def: "Secret or mysterious[cite: 2].",
-            example: "The prose was <strong>pellucid</strong>, making the <strong>arcane</strong> scientific law easy to grasp[cite: 2]."
-        }
-    ],
-    malapropisms: [
-        {
-            word: "Enervate",
-            soundsLike: "Energize",
-            actualMeaning: "To sap energy from[cite: 2].",
-            example: "The sun did not energize him; it <strong>enervated</strong> him[cite: 2]."
-        },
-        {
-            word: "Restive",
-            soundsLike: "Restful",
-            actualMeaning: "Restless; unruly under authority[cite: 2].",
-            example: "The crowd grew <strong>restive</strong> after three hours[cite: 2]."
-        },
-        {
-            word: "Ingenuous",
-            soundsLike: "Ingenious",
-            actualMeaning: "Naive and innocent[cite: 2].",
-            example: "Her <strong>ingenuous</strong> belief in strangers made her a target[cite: 2]."
-        },
-        {
-            word: "Demur",
-            soundsLike: "Demure",
-            actualMeaning: "To object or show reluctance[cite: 2].",
-            example: "He <strong>demurred</strong> when asked to work on Sunday[cite: 2]."
-        },
-        {
-            word: "Equivocal",
-            soundsLike: "Equivalent",
-            actualMeaning: "Confusing or ambiguous[cite: 2].",
-            example: "The test results were <strong>equivocal</strong>; we weren't sure what they meant[cite: 2]."
-        },
-        {
-            word: "Venal",
-            soundsLike: "Venial",
-            actualMeaning: "Susceptible to bribes; corrupt[cite: 2].",
-            example: "The <strong>venal</strong> official was easily bought[cite: 2]."
-        },
-        {
-            word: "Prosaic",
-            soundsLike: "Pros (Good)",
-            actualMeaning: "Dull and lacking imagination[cite: 2].",
-            example: "His <strong>prosaic</strong> mosaic was quite boring[cite: 2]."
-        }
-    ]
+        };
 
         let masterLibrary = [];
 
         async function loadLibrary() {
             try {
                 const response = await fetch('words.json');
-                if (!response.ok) throw new Error('File not found');
                 masterLibrary = await response.json();
                 document.getElementById('stat-total').innerText = masterLibrary.length;
-            } catch (e) {
-                console.warn("words.json not found.");
-            }
+            } catch (e) { console.warn("words.json not found."); }
         }
 
         function switchTab(tabId) {
             ['overview', 'synonyms', 'antonyms', 'malapropisms'].forEach(id => {
-                const section = document.getElementById(`section-${id}`);
-                const tab = document.getElementById(`tab-${id}`);
-                if (section && tab) {
-                    section.classList.add('hidden');
-                    tab.classList.remove('tab-active');
-                    tab.classList.add('tab-inactive');
-                }
+                document.getElementById(`section-${id}`).classList.add('hidden');
+                document.getElementById(`tab-${id}`).className = 'tab-inactive whitespace-nowrap py-3 px-1 text-sm';
             });
             document.getElementById(`section-${tabId}`).classList.remove('hidden');
-            const activeTab = document.getElementById(`tab-${tabId}`);
-            activeTab.classList.remove('tab-inactive');
-            activeTab.classList.add('tab-active');
-            clearSearch(false);
-        }
-
-        function handleSearch(query) {
-            query = query.toLowerCase().trim();
-            const panel = document.getElementById('searchResults');
-            const content = document.getElementById('searchContent');
-            if (query.length < 2) { panel.classList.add('hidden'); return; }
-
-            let html = '';
-            let count = 0;
-
-            masterLibrary.forEach(item => {
-                if (item.word.toLowerCase().includes(query) || item.def.toLowerCase().includes(query)) {
-                    html += `<div class="bg-white p-4 rounded-lg border border-sky-100 shadow-sm">
-                        <h4 class="font-bold text-sky-900 serif-font">${item.word} <span class="text-xs font-normal text-stone-400">(${item.pos})</span></h4>
-                        <p class="text-sm text-stone-700 mt-1">${item.def}</p>
-                        <p class="text-xs italic text-stone-500 mt-2">"${item.ex}"</p>
-                    </div>`;
-                    count++;
-                }
-            });
-
-            content.innerHTML = count > 0 ? html : `<p class="text-stone-500 italic">No matches found in library.</p>`;
-            panel.classList.remove('hidden');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function clearSearch(clearInputs = true) {
-            document.getElementById('searchResults').classList.add('hidden');
-            if(clearInputs) {
-                document.getElementById('searchInput').value = '';
-                document.getElementById('mobileSearchInput').value = '';
-            }
-        }
-
-        function renderSynonyms() {
-            const sidebar = document.getElementById('synonym-sidebar');
-            greData.synonyms.forEach((g, i) => {
-                const btn = document.createElement('button');
-                btn.className = 'w-full text-left px-4 py-3 rounded-lg border bg-white hover:bg-sky-50 transition-all mb-2';
-                btn.innerHTML = `${g.icon} <span class="font-medium text-stone-700">${g.theme}</span>`;
-                btn.onclick = () => renderDetails(i);
-                sidebar.appendChild(btn);
-            });
-            document.getElementById('stat-clusters').innerText = greData.synonyms.length;
-        }
-
-        function renderDetails(index) {
-            const group = greData.synonyms[index];
-            document.getElementById('synonym-details').innerHTML = `
-                <div class="mb-6 border-b pb-4"><h3 class="text-2xl font-bold">${group.icon} ${group.theme}</h3></div>
-                <div class="space-y-4">${group.words.map(w => `
-                    <div class="p-4 rounded bg-stone-50 border">
-                        <h4 class="text-xl font-bold text-sky-800 serif-font">${w.word}</h4>
-                        <p class="text-stone-800 my-1">${w.def}</p>
-                        <div class="text-xs bg-amber-50 p-2 border-l-4 border-amber-400 text-stone-600"><strong>Nuance:</strong> ${w.nuance}</div>
-                    </div>`).join('')}
-                </div>`;
+            document.getElementById(`tab-${tabId}`).className = 'tab-active whitespace-nowrap py-3 px-1 text-sm';
         }
 
         function renderAntonyms() {
             const grid = document.getElementById('antonym-grid');
             grid.innerHTML = greData.antonyms.map(a => `
-                <div class="bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden flex flex-col">
-                    <div class="bg-stone-100 px-4 py-2 text-xs font-bold text-stone-500 uppercase tracking-wider text-center border-b border-stone-200">
-                        Concept: ${a.concept}
+                <div class="bg-white border rounded-xl p-5 shadow-sm">
+                    <div class="text-xs font-bold text-stone-400 uppercase mb-3">Concept: ${a.concept}</div>
+                    <div class="grid grid-cols-2 gap-4 border-b pb-4 mb-4">
+                        <div><div class="text-emerald-600 font-bold">${a.pair[0]}</div><div class="text-sm text-stone-500">${a.w1}</div></div>
+                        <div class="text-right"><div class="text-rose-600 font-bold">${a.pair[1]}</div><div class="text-sm text-stone-500">${a.w2}</div></div>
                     </div>
-                    <div class="flex flex-col sm:flex-row flex-grow relative">
-                        <div class="flex-1 p-5 border-b sm:border-b-0 sm:border-r border-stone-100">
-                            <h4 class="text-xl font-bold text-emerald-700 mb-2 serif-font tracking-wide">${a.pair[0]}</h4>
-                            <p class="text-sm text-stone-600">${a.word1Def}</p>
-                        </div>
-                        <div class="flex-1 p-5">
-                            <h4 class="text-xl font-bold text-rose-700 mb-2 serif-font tracking-wide">${a.pair[1]}</h4>
-                            <p class="text-sm text-stone-600">${a.word2Def}</p>
-                        </div>
-                    </div>
-                    <div class="bg-stone-50 p-4 border-t border-stone-100 text-sm text-stone-600 italic">"${a.example}"</div>
-                </div>`).join('');
+                    <p class="text-xs italic text-stone-600">"${a.ex}"</p>
+                </div>
+            `).join('');
             document.getElementById('stat-pairs').innerText = greData.antonyms.length;
         }
 
         function renderMalapropisms() {
             const grid = document.getElementById('malapropism-grid');
             grid.innerHTML = greData.malapropisms.map(m => `
-                <div class="bg-white rounded-xl shadow-sm border border-stone-200 p-6 relative overflow-hidden group">
-                    <div class="absolute top-0 right-0 bg-red-100 text-red-800 text-xs font-bold px-2 py-1 rounded-bl-lg">TRAP</div>
-                    <h4 class="text-2xl font-bold text-stone-800 mb-1 serif-font">${m.word}</h4>
-                    <div class="flex items-center text-sm text-red-600 font-medium mb-4">
-                        <span class="mr-1">⚠️ Sounds like:</span> <span class="line-through opacity-70">${m.soundsLike}</span>
-                    </div>
-                    <div class="bg-sky-50 rounded p-3 mb-4 border-l-4 border-sky-500">
-                        <span class="block text-xs text-sky-800 uppercase font-bold mb-1">Actual Meaning:</span>
-                        <span class="text-stone-800">${m.actualMeaning}</span>
-                    </div>
-                    <p class="text-sm text-stone-500 italic">"${m.example}"</p>
-                </div>`).join('');
+                <div class="bg-white border rounded-xl p-6 shadow-sm relative">
+                    <div class="absolute top-2 right-2 bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded">TRAP</div>
+                    <h4 class="text-xl font-bold mb-2">${m.word}</h4>
+                    <div class="text-sm mb-2"><span class="text-stone-400">Not:</span> <span class="line-through">${m.sounds}</span></div>
+                    <div class="bg-sky-50 p-3 rounded text-sm text-sky-800 mb-3"><strong>Meaning:</strong> ${m.real}</div>
+                    <p class="text-xs italic text-stone-500">"${m.ex}"</p>
+                </div>
+            `).join('');
+        }
+
+        function renderSynonyms() {
+            const sidebar = document.getElementById('synonym-sidebar');
+            greData.synonyms.forEach((g, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full text-left px-4 py-3 rounded-lg border bg-white hover:bg-sky-50 mb-2 transition-all';
+                btn.innerHTML = `${g.icon} <span class="font-medium">${g.theme}</span>`;
+                btn.onclick = () => {
+                    document.getElementById('synonym-details').innerHTML = `
+                        <h3 class="text-2xl font-bold mb-6">${g.icon} ${g.theme}</h3>
+                        <div class="space-y-4">${g.words.map(w => `
+                            <div class="p-4 rounded border bg-stone-50">
+                                <div class="font-bold text-sky-800 text-lg">${w.word}</div>
+                                <div class="text-stone-700 my-1">${w.def}</div>
+                                <div class="text-xs text-stone-400"><strong>Nuance:</strong> ${w.nuance}</div>
+                            </div>
+                        `).join('')}</div>
+                    `;
+                };
+                sidebar.appendChild(btn);
+            });
+            document.getElementById('stat-clusters').innerText = greData.synonyms.length;
         }
 
         function initChart() {
@@ -469,21 +327,38 @@
                 type: 'polarArea',
                 data: {
                     labels: greData.synonyms.map(g => g.theme),
-                    datasets: [{ data: greData.synonyms.map(g => g.words.length), backgroundColor: ['#0ea5e9', '#f59e0b', '#10b981'] }]
+                    datasets: [{ data: greData.synonyms.map(g => g.words.length), backgroundColor: ['#0ea5e9', '#f59e0b', '#10b981', '#6366f1', '#f43f5e', '#8b5cf6', '#14b8a6', '#f97316', '#a8a29e', '#0f172a'] }]
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
             });
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
+        window.onload = () => {
             loadLibrary();
             renderSynonyms();
             renderAntonyms();
             renderMalapropisms();
             initChart();
-            document.getElementById('searchInput').addEventListener('input', e => handleSearch(e.target.value));
-            document.getElementById('mobileSearchInput').addEventListener('input', e => handleSearch(e.target.value));
-        });
+        };
+
+        function clearSearch() {
+            document.getElementById('searchResults').classList.add('hidden');
+            document.getElementById('searchInput').value = '';
+        }
+
+        document.getElementById('searchInput').oninput = (e) => {
+            const query = e.target.value.toLowerCase();
+            const panel = document.getElementById('searchResults');
+            if (query.length < 2) { panel.classList.add('hidden'); return; }
+            panel.classList.remove('hidden');
+            const matches = masterLibrary.filter(w => w.word.toLowerCase().includes(query)).slice(0, 10);
+            document.getElementById('searchContent').innerHTML = matches.map(m => `
+                <div class="bg-white p-4 border rounded shadow-sm">
+                    <div class="font-bold">${m.word} (${m.pos})</div>
+                    <div class="text-sm">${m.def}</div>
+                </div>
+            `).join('') || '<p class="text-stone-500">No results found in library.</p>';
+        };
     </script>
 </body>
 </html>
