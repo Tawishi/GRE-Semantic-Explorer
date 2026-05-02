@@ -226,178 +226,111 @@
          * Text Completion (nuance, antonyms) and Sentence Equivalence (synonyms).
          */
         const greData = {
-            synonyms: [
-                {
-                    theme: "Criticize / Scold",
-                    icon: "🗣️",
-                    words: [
-                        { word: "Castigate", def: "To reprimand harshly.", nuance: "Often implies severe, public criticism." },
-                        { word: "Chastise", def: "To reprimand severely.", nuance: "Can imply verbal discipline." },
-                        { word: "Upbraid", def: "To find fault with someone; scold.", nuance: "Focuses on pointing out faults." },
-                        { word: "Reproach", def: "To express disapproval or disappointment.", nuance: "Milder than castigate; implies disappointment." },
-                        { word: "Lambaste", def: "To criticize harshly.", nuance: "Very strong, often referring to written/public attacks." },
-                        { word: "Censure", def: "To express severe disapproval, typically formally.", nuance: "Often involves an official reprimand." }
-                    ]
-                },
-                {
-                    theme: "Praise / Flattery",
-                    icon: "🌟",
-                    words: [
-                        { word: "Adulate", def: "To praise excessively.", nuance: "Often borders on worship or extreme admiration." },
-                        { word: "Fawn", def: "To try to gain favor by extreme flattery.", nuance: "Implies a groveling, submissive attitude." },
-                        { word: "Obsequious", def: "Obedient or attentive to an excessive degree.", nuance: "Describes the person who is fawning." },
-                        { word: "Sycophant", def: "A person who acts obsequiously to gain advantage.", nuance: "A 'yes-man' or bootlicker." },
-                        { word: "Venerate", def: "To regard with great respect.", nuance: "Positive connotation; implies deep respect, often for age or tradition." }
-                    ]
-                },
-                {
-                    theme: "Stubborn / Inflexible",
-                    icon: "🧱",
-                    words: [
-                        { word: "Obdurate", def: "Stubbornly refusing to change one's opinion.", nuance: "Hardheartedness; resistant to persuasion." },
-                        { word: "Intransigent", def: "Unwilling or refusing to change one's views.", nuance: "Often used in political or negotiation contexts." },
-                        { word: "Intractable", def: "Hard to control or deal with.", nuance: "Can apply to problems or people." },
-                        { word: "Recalcitrant", def: "Having an obstinately uncooperative attitude.", nuance: "Implies active rebellion against authority." },
-                        { word: "Obstinate", def: "Stubbornly adhering to an opinion or course of action.", nuance: "The most general word in this cluster." }
-                    ]
-                },
-                {
-                    theme: "Brief / Concise",
-                    icon: "✂️",
-                    words: [
-                        { word: "Laconic", def: "Using very few words.", nuance: "Can come off as mysterious, blunt, or terse." },
-                        { word: "Terse", def: "Sparing in the use of words; abrupt.", nuance: "Often has a negative connotation of being unfriendly." },
-                        { word: "Pithy", def: "Concise and forcefully expressive.", nuance: "Highly positive; packs a lot of meaning into a few words." },
-                        { word: "Taciturn", def: "Reserved or uncommunicative in speech.", nuance: "Describes a personality trait of being quiet." },
-                        { word: "Reticent", def: "Not revealing one's thoughts or feelings readily.", nuance: "Implies holding back information intentionally." }
-                    ]
-                },
-                {
-                    theme: "Talkative / Wordy",
-                    icon: "🦜",
-                    words: [
-                        { word: "Garrulous", def: "Excessively talkative, especially on trivial matters.", nuance: "Rambling about unimportant things." },
-                        { word: "Loquacious", def: "Tending to talk a great deal.", nuance: "Simply means highly communicative; can be positive or negative." },
-                        { word: "Prolix", def: "Using or containing too many words.", nuance: "Usually describes a tedious, overly long speech or writing." },
-                        { word: "Verbose", def: "Using or expressed in more words than are needed.", nuance: "Synonymous with wordy." },
-                        { word: "Voluble", def: "Speaking or spoken incessantly and fluently.", nuance: "Implies a rapid, smooth flow of speech." }
-                    ]
-                },
-                {
-                    theme: "Hardworking",
-                    icon: "⚙️",
-                    words: [
-                        { word: "Assiduous", def: "Showing great care and perseverance.", nuance: "Implies constant, steady attention to a task." },
-                        { word: "Sedulous", def: "Showing dedication and diligence.", nuance: "Careful and persistent application." },
-                        { word: "Meticulous", def: "Showing great attention to detail.", nuance: "Focus is on extreme care regarding small specifics." },
-                        { word: "Punctilious", def: "Showing great attention to detail or correct behavior.", nuance: "Often related to rules of etiquette or strict procedure." }
-                    ]
-                },
-                {
-                    theme: "Lacking Energy",
-                    icon: "🔋",
-                    words: [
-                        { word: "Lethargic", def: "Affected by lethargy; sluggish and apathetic.", nuance: "A general lack of energy or enthusiasm." },
-                        { word: "Enervated", def: "Drained of energy or vitality.", nuance: "Implies energy has been actively sapped away by something." },
-                        { word: "Languid", def: "Displaying a disinclination for physical exertion.", nuance: "Can sometimes have a romantic or elegant connotation (e.g., a languid wave)." },
-                        { word: "Torpid", def: "Mentally or physically inactive.", nuance: "Think of an animal in hibernation." }
-                    ]
-                },
-                {
-                    theme: "Complicated / Hidden",
-                    icon: "🧩",
-                    words: [
-                        { word: "Esoteric", def: "Intended for or likely to be understood by only a small number of people.", nuance: "Requires specialized knowledge." },
-                        { word: "Arcane", def: "Understood by few; mysterious or secret.", nuance: "Often associated with ancient or magical knowledge." },
-                        { word: "Recondite", def: "Little known; abstruse.", nuance: "Highly academic or obscure subject matter." },
-                        { word: "Abstruse", def: "Difficult to understand; obscure.", nuance: "The concepts themselves are complex and dense." },
-                        { word: "Opaque", def: "Not able to be seen through; not easily understood.", nuance: "Metaphorically means unclear or deliberately hiding meaning." }
-                    ]
-                }
-            ],
-            antonyms: [
-                {
-                    pair: ["Cacophony", "Euphony"],
-                    concept: "Sound",
-                    word1Def: "A harsh, discordant mixture of sounds.",
-                    word2Def: "The quality of being pleasing to the ear.",
-                    example: "The orchestra tuned their instruments in a <strong>cacophony</strong> before delivering a performance of pure <strong>euphony</strong>."
-                },
-                {
-                    pair: ["Mitigate", "Exacerbate"],
-                    concept: "Severity",
-                    word1Def: "To make less severe, serious, or painful.",
-                    word2Def: "To make (a problem, bad situation, or negative feeling) worse.",
-                    example: "The medicine was supposed to <strong>mitigate</strong> the pain, but the allergic reaction only served to <strong>exacerbate</strong> it."
-                },
-                {
-                    pair: ["Ostentatious", "Unpretentious"],
-                    concept: "Display",
-                    word1Def: "Characterized by vulgar or pretentious display; designed to impress.",
-                    word2Def: "Not attempting to impress others with an appearance of greater importance.",
-                    example: "Despite his massive wealth, his <strong>unpretentious</strong> lifestyle stood in stark contrast to the <strong>ostentatious</strong> mansions of his neighbors."
-                },
-                {
-                    pair: ["Profligate", "Parsimonious"],
-                    concept: "Spending",
-                    word1Def: "Recklessly extravagant or wasteful in the use of resources.",
-                    word2Def: "Unwilling to spend money or use resources; stingy or frugal.",
-                    example: "The <strong>parsimonious</strong> grandfather saved every penny, only to have his <strong>profligate</strong> grandson squander the fortune in a year."
-                },
-                {
-                    pair: ["Ephemeral", "Perpetual"],
-                    concept: "Duration",
-                    word1Def: "Lasting for a very short time.",
-                    word2Def: "Never ending or changing.",
-                    example: "Fame on the internet is often <strong>ephemeral</strong>, while the classic works of literature hold <strong>perpetual</strong> relevance."
-                },
-                {
-                    pair: ["Desiccate", "Inundate"],
-                    concept: "Moisture / Amount",
-                    word1Def: "To remove the moisture from; dry up.",
-                    word2Def: "To overwhelm (someone) with things or water; flood.",
-                    example: "The long drought served to <strong>desiccate</strong> the soil, until the sudden monsoon threatened to <strong>inundate</strong> the valley."
-                }
-            ],
-            malapropisms: [
-                {
-                    word: "Enervate",
-                    soundsLike: "Energize",
-                    actualMeaning: "To drain of energy; to weaken.",
-                    example: "The hot, humid weather did not energize him; rather, it completely <strong>enervated</strong> him."
-                },
-                {
-                    word: "Restive",
-                    soundsLike: "Restful",
-                    actualMeaning: "Restless, unruly, or impatient under authority.",
-                    example: "The crowd grew <strong>restive</strong> after waiting three hours for the concert to begin."
-                },
-                {
-                    word: "Ingenuous",
-                    soundsLike: "Ingenious (clever)",
-                    actualMeaning: "Innocent, naive, and uncalculating.",
-                    example: "Her <strong>ingenuous</strong> belief that everyone told the truth made her an easy target for scammers."
-                },
-                {
-                    word: "Prosaic",
-                    soundsLike: "Pros (good/positive)",
-                    actualMeaning: "Dull, unimaginative, or everyday/ordinary.",
-                    example: "The title promised a thrilling adventure, but the book was filled with <strong>prosaic</strong> descriptions of filing taxes."
-                },
-                {
-                    word: "Inflammable",
-                    soundsLike: "Not flammable",
-                    actualMeaning: "Easily set on fire (combustible).",
-                    example: "Warning: The chemicals in this barrel are highly <strong>inflammable</strong> and must be kept away from sparks."
-                },
-                {
-                    word: "Mendacious",
-                    soundsLike: "Mending / Healing",
-                    actualMeaning: "Given to lying; consistently deceitful.",
-                    example: "The politician's <strong>mendacious</strong> claims were quickly debunked by fact-checkers."
-                }
+    synonyms: [
+        {
+            theme: "Criticize / Harsh Disapproval",
+            icon: "🗣️",
+            words: [
+                { word: "Castigate", def: "Reprimand harshly.", nuance: "Often public or severe." },
+                { word: "Chastise", def: "Reprimand harshly.", nuance: "Strong verbal discipline." },
+                { word: "Excoriate", def: "Criticize very harshly.", nuance: "Intense, stinging public attack." },
+                { word: "Objurgate", def: "Express strong disapproval.", nuance: "To scold or berate." },
+                { word: "Upbraid", def: "To reproach or scold.", nuance: "Typically finding fault with behavior." },
+                { word: "Rebuke", def: "Criticize severely or angrily.", nuance: "Sharp, direct disapproval[cite: 2]." },
+                { word: "Vituperate", def: "To criticize harshly; to berate[cite: 2].", nuance: "Savage verbal attack[cite: 2]." }
             ]
-        };
+        },
+        {
+            theme: "Stubborn / Inflexible",
+            icon: "🧱",
+            words: [
+                { word: "Obdurate", def: "Stubbornly persistent in changing an opinion[cite: 2].", nuance: "Hardened against persuasion[cite: 2]." },
+                { word: "Intransigent", def: "Unwilling to change one's beliefs[cite: 2].", nuance: "Often used in negotiations[cite: 2]." },
+                { word: "Adamant", def: "Refusing to change one's mind[cite: 2].", nuance: "Unshakeable resolve[cite: 2]." },
+                { word: "Obstinate", def: "Resistant to guidance; stubbornly persistent[cite: 2].", nuance: "The general GRE 'stubborn' word[cite: 2]." },
+                { word: "Recalcitrant", def: "Obstinately uncooperative[cite: 2].", nuance: "Defiance of authority[cite: 2]." }
+            ]
+        },
+        {
+            theme: "Brief / Concise",
+            icon: "✂️",
+            words: [
+                { word: "Laconic", def: "Using very few words[cite: 2].", nuance: "Concise to the point of being blunt[cite: 2]." },
+                { word: "Terse", def: "Sparing in use of words; abrupt[cite: 2].", nuance: "Often suggests unfriendliness[cite: 2]." },
+                { word: "Pithy", def: "Concise and full of meaning[cite: 2].", nuance: "Highly insightful and forceful[cite: 2]." },
+                { word: "Taciturn", def: "Habitually reserved and uncommunicative[cite: 2].", nuance: "A character trait of being quiet[cite: 2]." },
+                { word: "Reticent", def: "Reluctant to draw attention to yourself[cite: 2].", nuance: "Quiet due to modesty or caution[cite: 2]." }
+            ]
+        },
+        {
+            theme: "Abundant / Copious",
+            icon: "📈",
+            words: [
+                { word: "Copious", def: "In abundant supply[cite: 2].", nuance: "Plentiful; large in quantity[cite: 2]." },
+                { word: "Profuse", def: "Plentiful; pouring out in abundance[cite: 2].", nuance: "Often used for physical output (sweat/tears)[cite: 2]." },
+                { word: "Myriad", def: "A large indefinite number[cite: 2].", nuance: "Suggests a vast variety[cite: 2]." },
+                { word: "Replete", def: "Completely stocked or furnished[cite: 2].", nuance: "Full of or well-supplied[cite: 2]." },
+                { word: "Cornucopia", def: "An abundant supply of something good[cite: 2].", nuance: "A 'horn of plenty' metaphor[cite: 2]." }
+            ]
+        }
+    ],
+    antonyms: [
+        {
+            pair: ["Auspicious", "Sinister"],
+            concept: "Favorability",
+            word1Def: "Favorable, promising success[cite: 2].",
+            word2Def: "Evil or unlucky[cite: 2].",
+            example: "The <strong>auspicious</strong> sunny weather was a welcome change from the <strong>sinister</strong> storms of the previous week[cite: 2]."
+        },
+        {
+            pair: ["Benign", "Malignant"],
+            concept: "Harmfulness",
+            word1Def: "Kind; not dangerous to health[cite: 2].",
+            word2Def: "Dangerous; harmful or recurring[cite: 2].",
+            example: "The doctor confirmed the tumor was <strong>benign</strong>, much to the patient's relief[cite: 2]."
+        },
+        {
+            pair: ["Venerate", "Deride"],
+            concept: "Respect",
+            word1Def: "To respect deeply[cite: 2].",
+            word2Def: "Treat or speak of with contempt[cite: 2].",
+            example: "Critics tend to <strong>venerate</strong> the masters but <strong>deride</strong> derivative newcomers[cite: 2]."
+        },
+        {
+            pair: ["Ephemeral", "Perennial"],
+            concept: "Duration",
+            word1Def: "Lasting for a very short time[cite: 2].",
+            word2Def: "Lasting an indefinitely long time[cite: 2].",
+            example: "Fame is often <strong>ephemeral</strong>, unlike <strong>perennial</strong> classics[cite: 2]."
+        }
+    ],
+    malapropisms: [
+        {
+            word: "Enervate",
+            soundsLike: "Energize",
+            actualMeaning: "To sap energy from[cite: 2].",
+            example: "The sun left him <strong>enervated</strong>, not energized[cite: 2]."
+        },
+        {
+            word: "Restive",
+            soundsLike: "Restful",
+            actualMeaning: "Restless; unruly under authority[cite: 2].",
+            example: "The crowd grew <strong>restive</strong> while waiting[cite: 2]."
+        },
+        {
+            word: "Ingenuous",
+            soundsLike: "Ingenious",
+            actualMeaning: "Naive and innocent[cite: 2].",
+            example: "Her <strong>ingenuous</strong> belief made her a target[cite: 2]."
+        },
+        {
+            word: "Prosaic",
+            soundsLike: "Pro (Positive)",
+            actualMeaning: "Dull and lacking imagination[cite: 2].",
+            example: "His <strong>prosaic</strong> mosaic was uninteresting[cite: 2]."
+        }
+    ]
+};
 
         // --- State Management ---
         let chartInstance = null;
