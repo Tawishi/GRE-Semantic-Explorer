@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GRE Semantic Explorer | Magoosh 1000</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,600&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fafaf9; /* Tailwind stone-50 */
+            color: #1c1917; /* Tailwind stone-900 */
+        }
+        
+        h1, h2, h3, .serif-font {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Chart Container Styling requirement */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 250px;
+            }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f5f5f4; }
+        ::-webkit-scrollbar-thumb { background: #d6d3d1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a8a29e; }
+        
+        .tab-active { border-bottom: 3px solid #0369a1; color: #0369a1; font-weight: 600; }
+        .tab-inactive { border-bottom: 3px solid transparent; color: #78716c; }
+        .tab-inactive:hover { color: #44403c; border-bottom: 3px solid #d6d3d1; }
+    </style>
+
+    <!-- Chosen Palette: Warm Neutrals (Stone/Warm Gray) with subtle Indigo/Sky Blue accents for focus and interactivity. -->
+    <!-- Application Structure Plan: The SPA uses a tabbed dashboard structure to break cognitive load. 
+         1. Overview: Provides a high-level statistical breakdown of word themes (useful for motivation and grasping scope).
+         2. Synonyms: A master-detail view to group words by semantic theme (Crucial for Sentence Equivalence).
+         3. Antonyms: A grid of contrasting pairs to build relational memory (Useful for Text Completion pivots).
+         4. Malapropisms: Highlighted cards for tricky words that sound like one thing but mean another.
+         A persistent search bar allows global querying. This structure prioritizes active exploration and relational learning over a static A-Z list. -->
+    <!-- Visualization & Content Choices: 
+         - Overview Chart -> Goal: Inform on thematic distribution -> Viz: Polar Area Chart (Chart.js) -> Interaction: Hover for counts -> Justification: Shows how heavily GRE tests certain concepts (e.g., Criticism vs Praise) -> Library: Chart.js (Canvas).
+         - Synonym Clusters -> Goal: Organize & Compare -> Viz: Master-detail lists -> Interaction: Click theme to view words -> Justification: Mimics Sentence Equivalence logic directly.
+         - NO SVG or Mermaid used. Unicode icons deployed for visual anchor points. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header Navigation -->
+    <header class="bg-white border-b border-stone-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="text-2xl">🎓</span>
+                <h1 class="text-xl font-bold text-stone-800 tracking-tight">GRE Semantic <span class="text-sky-700">Explorer</span></h1>
+            </div>
+            <div class="relative w-64 hidden md:block">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-stone-400">🔍</span>
+                <input type="text" id="searchInput" placeholder="Search a word..." class="w-full pl-10 pr-4 py-2 rounded-full border border-stone-300 bg-stone-50 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all text-sm">
+            </div>
+        </div>
+        
+        <!-- Mobile Search (visible only on small screens) -->
+        <div class="md:hidden px-4 pb-3">
+             <div class="relative w-full">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-stone-400">🔍</span>
+                <input type="text" id="mobileSearchInput" placeholder="Search a word..." class="w-full pl-10 pr-4 py-2 rounded-lg border border-stone-300 bg-stone-50 focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm">
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <nav class="flex space-x-8 overflow-x-auto no-scrollbar" aria-label="Tabs">
+                <button onclick="switchTab('overview')" id="tab-overview" class="tab-active whitespace-nowrap py-3 px-1 text-sm transition-all">📊 Overview</button>
+                <button onclick="switchTab('synonyms')" id="tab-synonyms" class="tab-inactive whitespace-nowrap py-3 px-1 text-sm transition-all">🔗 Synonym Clusters</button>
+                <button onclick="switchTab('antonyms')" id="tab-antonyms" class="tab-inactive whitespace-nowrap py-3 px-1 text-sm transition-all">⚖️ Antonym Pairs</button>
+                <button onclick="switchTab('malapropisms')" id="tab-malapropisms" class="tab-inactive whitespace-nowrap py-3 px-1 text-sm transition-all">🎭 Tricky Words</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        
+        <!-- Search Results Panel (Hidden by default) -->
+        <div id="searchResults" class="hidden mb-8 p-6 bg-sky-50 border border-sky-200 rounded-xl shadow-sm">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold text-sky-900">Search Results</h2>
+                <button onclick="clearSearch()" class="text-sky-600 hover:text-sky-800 text-sm font-medium">✕ Clear</button>
+            </div>
+            <div id="searchContent" class="space-y-4">
+                <!-- Search results injected here via JS -->
+            </div>
+        </div>
+
+        <!-- Section: Overview -->
+        <section id="section-overview" class="block animate-fade-in">
+            <div class="mb-8">
+                <h2 class="text-3xl text-stone-800 mb-2">Word Relationships Overview</h2>
+                <p class="text-stone-600 max-w-3xl">
+                    Welcome to the GRE Semantic Explorer. This application analyzes high-yield vocabulary from the Magoosh 1000 list. Rather than alphabetical memorization, this tool groups words logically to help you master <strong>Sentence Equivalence</strong> (finding identical sentence fillers) and <strong>Text Completion</strong> (understanding nuanced pivots and contrasts).
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-100 flex items-center gap-4">
+                    <div class="text-4xl">📚</div>
+                    <div>
+                        <div class="text-2xl font-bold text-stone-800" id="stat-total">--</div>
+                        <div class="text-sm text-stone-500 uppercase tracking-wide">Curated Words</div>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-100 flex items-center gap-4">
+                    <div class="text-4xl">🔗</div>
+                    <div>
+                        <div class="text-2xl font-bold text-stone-800" id="stat-clusters">--</div>
+                        <div class="text-sm text-stone-500 uppercase tracking-wide">Synonym Clusters</div>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-100 flex items-center gap-4">
+                    <div class="text-4xl">⚖️</div>
+                    <div>
+                        <div class="text-2xl font-bold text-stone-800" id="stat-pairs">--</div>
+                        <div class="text-sm text-stone-500 uppercase tracking-wide">Key Contrasts</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-100">
+                <h3 class="text-lg font-semibold text-stone-800 mb-4 text-center">Most Tested Semantic Themes</h3>
+                <p class="text-sm text-stone-500 text-center mb-6">GRE Verbal sections heavily favor specific themes (e.g., criticizing, praising, stubbornness). Below is the distribution of our curated high-yield words.</p>
+                <div class="chart-container">
+                    <canvas id="themeChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Synonyms -->
+        <section id="section-synonyms" class="hidden animate-fade-in">
+            <div class="mb-6">
+                <h2 class="text-3xl text-stone-800 mb-2">Synonym Clusters</h2>
+                <p class="text-stone-600">
+                    Essential for <strong>Sentence Equivalence</strong>. If you encounter a blank, the correct two answers will almost always come from the same semantic cluster. Select a theme below to explore the vocabulary.
+                </p>
+            </div>
+
+            <div class="flex flex-col md:flex-row gap-6">
+                <!-- Theme Sidebar -->
+                <div class="w-full md:w-1/3 flex flex-col gap-2 h-[60vh] overflow-y-auto pr-2" id="synonym-sidebar">
+                    <!-- Themes injected via JS -->
+                </div>
+                
+                <!-- Word Details Panel -->
+                <div class="w-full md:w-2/3 bg-white p-6 rounded-xl shadow-sm border border-stone-200 min-h-[60vh]" id="synonym-details">
+                    <div class="flex flex-col items-center justify-center h-full text-stone-400 text-center">
+                        <span class="text-5xl mb-4">👈</span>
+                        <p class="text-lg">Select a semantic theme from the left to view its associated vocabulary cluster.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Antonyms -->
+        <section id="section-antonyms" class="hidden animate-fade-in">
+             <div class="mb-6">
+                <h2 class="text-3xl text-stone-800 mb-2">Antonym Pairs & Contrasts</h2>
+                <p class="text-stone-600">
+                    Crucial for <strong>Text Completion</strong>. Look for pivot words (e.g., "however", "although", "rather than") which require you to find the antonym of a concept established earlier in the sentence.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" id="antonym-grid">
+                <!-- Antonym pairs injected via JS -->
+            </div>
+        </section>
+
+        <!-- Section: Malapropisms -->
+        <section id="section-malapropisms" class="hidden animate-fade-in">
+             <div class="mb-6">
+                <h2 class="text-3xl text-stone-800 mb-2">Tricky Words & False Friends</h2>
+                <p class="text-stone-600">
+                    The GRE loves to test words that sound like they mean one thing, but actually mean something entirely different (or the exact opposite). Master these to avoid common traps.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="malapropism-grid">
+                <!-- Malapropisms injected via JS -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-stone-900 text-stone-400 py-6 text-center mt-auto">
+        <p class="text-sm">Semantic analysis based on high-yield GRE vocabulary patterns.</p>
+        <p class="text-xs mt-2">Designed for conceptual learning and exam preparation.</p>
+    </footer>
+
+    <!-- CSS Animation Helper -->
+    <style>
+        .animate-fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+
+    <script>
+        /**
+         * Core Data Architecture
+         * Curated representative high-yield subset of the 1000 GRE words focusing on 
+         * Text Completion (nuance, antonyms) and Sentence Equivalence (synonyms).
+         */
+        const greData = {
+            synonyms: [
+                {
+                    theme: "Criticize / Scold",
+                    icon: "🗣️",
+                    words: [
+                        { word: "Castigate", def: "To reprimand harshly.", nuance: "Often implies severe, public criticism." },
+                        { word: "Chastise", def: "To reprimand severely.", nuance: "Can imply verbal discipline." },
+                        { word: "Upbraid", def: "To find fault with someone; scold.", nuance: "Focuses on pointing out faults." },
+                        { word: "Reproach", def: "To express disapproval or disappointment.", nuance: "Milder than castigate; implies disappointment." },
+                        { word: "Lambaste", def: "To criticize harshly.", nuance: "Very strong, often referring to written/public attacks." },
+                        { word: "Censure", def: "To express severe disapproval, typically formally.", nuance: "Often involves an official reprimand." }
+                    ]
+                },
+                {
+                    theme: "Praise / Flattery",
+                    icon: "🌟",
+                    words: [
+                        { word: "Adulate", def: "To praise excessively.", nuance: "Often borders on worship or extreme admiration." },
+                        { word: "Fawn", def: "To try to gain favor by extreme flattery.", nuance: "Implies a groveling, submissive attitude." },
+                        { word: "Obsequious", def: "Obedient or attentive to an excessive degree.", nuance: "Describes the person who is fawning." },
+                        { word: "Sycophant", def: "A person who acts obsequiously to gain advantage.", nuance: "A 'yes-man' or bootlicker." },
+                        { word: "Venerate", def: "To regard with great respect.", nuance: "Positive connotation; implies deep respect, often for age or tradition." }
+                    ]
+                },
+                {
+                    theme: "Stubborn / Inflexible",
+                    icon: "🧱",
+                    words: [
+                        { word: "Obdurate", def: "Stubbornly refusing to change one's opinion.", nuance: "Hardheartedness; resistant to persuasion." },
+                        { word: "Intransigent", def: "Unwilling or refusing to change one's views.", nuance: "Often used in political or negotiation contexts." },
+                        { word: "Intractable", def: "Hard to control or deal with.", nuance: "Can apply to problems or people." },
+                        { word: "Recalcitrant", def: "Having an obstinately uncooperative attitude.", nuance: "Implies active rebellion against authority." },
+                        { word: "Obstinate", def: "Stubbornly adhering to an opinion or course of action.", nuance: "The most general word in this cluster." }
+                    ]
+                },
+                {
+                    theme: "Brief / Concise",
+                    icon: "✂️",
+                    words: [
+                        { word: "Laconic", def: "Using very few words.", nuance: "Can come off as mysterious, blunt, or terse." },
+                        { word: "Terse", def: "Sparing in the use of words; abrupt.", nuance: "Often has a negative connotation of being unfriendly." },
+                        { word: "Pithy", def: "Concise and forcefully expressive.", nuance: "Highly positive; packs a lot of meaning into a few words." },
+                        { word: "Taciturn", def: "Reserved or uncommunicative in speech.", nuance: "Describes a personality trait of being quiet." },
+                        { word: "Reticent", def: "Not revealing one's thoughts or feelings readily.", nuance: "Implies holding back information intentionally." }
+                    ]
+                },
+                {
+                    theme: "Talkative / Wordy",
+                    icon: "🦜",
+                    words: [
+                        { word: "Garrulous", def: "Excessively talkative, especially on trivial matters.", nuance: "Rambling about unimportant things." },
+                        { word: "Loquacious", def: "Tending to talk a great deal.", nuance: "Simply means highly communicative; can be positive or negative." },
+                        { word: "Prolix", def: "Using or containing too many words.", nuance: "Usually describes a tedious, overly long speech or writing." },
+                        { word: "Verbose", def: "Using or expressed in more words than are needed.", nuance: "Synonymous with wordy." },
+                        { word: "Voluble", def: "Speaking or spoken incessantly and fluently.", nuance: "Implies a rapid, smooth flow of speech." }
+                    ]
+                },
+                {
+                    theme: "Hardworking",
+                    icon: "⚙️",
+                    words: [
+                        { word: "Assiduous", def: "Showing great care and perseverance.", nuance: "Implies constant, steady attention to a task." },
+                        { word: "Sedulous", def: "Showing dedication and diligence.", nuance: "Careful and persistent application." },
+                        { word: "Meticulous", def: "Showing great attention to detail.", nuance: "Focus is on extreme care regarding small specifics." },
+                        { word: "Punctilious", def: "Showing great attention to detail or correct behavior.", nuance: "Often related to rules of etiquette or strict procedure." }
+                    ]
+                },
+                {
+                    theme: "Lacking Energy",
+                    icon: "🔋",
+                    words: [
+                        { word: "Lethargic", def: "Affected by lethargy; sluggish and apathetic.", nuance: "A general lack of energy or enthusiasm." },
+                        { word: "Enervated", def: "Drained of energy or vitality.", nuance: "Implies energy has been actively sapped away by something." },
+                        { word: "Languid", def: "Displaying a disinclination for physical exertion.", nuance: "Can sometimes have a romantic or elegant connotation (e.g., a languid wave)." },
+                        { word: "Torpid", def: "Mentally or physically inactive.", nuance: "Think of an animal in hibernation." }
+                    ]
+                },
+                {
+                    theme: "Complicated / Hidden",
+                    icon: "🧩",
+                    words: [
+                        { word: "Esoteric", def: "Intended for or likely to be understood by only a small number of people.", nuance: "Requires specialized knowledge." },
+                        { word: "Arcane", def: "Understood by few; mysterious or secret.", nuance: "Often associated with ancient or magical knowledge." },
+                        { word: "Recondite", def: "Little known; abstruse.", nuance: "Highly academic or obscure subject matter." },
+                        { word: "Abstruse", def: "Difficult to understand; obscure.", nuance: "The concepts themselves are complex and dense." },
+                        { word: "Opaque", def: "Not able to be seen through; not easily understood.", nuance: "Metaphorically means unclear or deliberately hiding meaning." }
+                    ]
+                }
+            ],
+            antonyms: [
+                {
+                    pair: ["Cacophony", "Euphony"],
+                    concept: "Sound",
+                    word1Def: "A harsh, discordant mixture of sounds.",
+                    word2Def: "The quality of being pleasing to the ear.",
+                    example: "The orchestra tuned their instruments in a <strong>cacophony</strong> before delivering a performance of pure <strong>euphony</strong>."
+                },
+                {
+                    pair: ["Mitigate", "Exacerbate"],
+                    concept: "Severity",
+                    word1Def: "To make less severe, serious, or painful.",
+                    word2Def: "To make (a problem, bad situation, or negative feeling) worse.",
+                    example: "The medicine was supposed to <strong>mitigate</strong> the pain, but the allergic reaction only served to <strong>exacerbate</strong> it."
+                },
+                {
+                    pair: ["Ostentatious", "Unpretentious"],
+                    concept: "Display",
+                    word1Def: "Characterized by vulgar or pretentious display; designed to impress.",
+                    word2Def: "Not attempting to impress others with an appearance of greater importance.",
+                    example: "Despite his massive wealth, his <strong>unpretentious</strong> lifestyle stood in stark contrast to the <strong>ostentatious</strong> mansions of his neighbors."
+                },
+                {
+                    pair: ["Profligate", "Parsimonious"],
+                    concept: "Spending",
+                    word1Def: "Recklessly extravagant or wasteful in the use of resources.",
+                    word2Def: "Unwilling to spend money or use resources; stingy or frugal.",
+                    example: "The <strong>parsimonious</strong> grandfather saved every penny, only to have his <strong>profligate</strong> grandson squander the fortune in a year."
+                },
+                {
+                    pair: ["Ephemeral", "Perpetual"],
+                    concept: "Duration",
+                    word1Def: "Lasting for a very short time.",
+                    word2Def: "Never ending or changing.",
+                    example: "Fame on the internet is often <strong>ephemeral</strong>, while the classic works of literature hold <strong>perpetual</strong> relevance."
+                },
+                {
+                    pair: ["Desiccate", "Inundate"],
+                    concept: "Moisture / Amount",
+                    word1Def: "To remove the moisture from; dry up.",
+                    word2Def: "To overwhelm (someone) with things or water; flood.",
+                    example: "The long drought served to <strong>desiccate</strong> the soil, until the sudden monsoon threatened to <strong>inundate</strong> the valley."
+                }
+            ],
+            malapropisms: [
+                {
+                    word: "Enervate",
+                    soundsLike: "Energize",
+                    actualMeaning: "To drain of energy; to weaken.",
+                    example: "The hot, humid weather did not energize him; rather, it completely <strong>enervated</strong> him."
+                },
+                {
+                    word: "Restive",
+                    soundsLike: "Restful",
+                    actualMeaning: "Restless, unruly, or impatient under authority.",
+                    example: "The crowd grew <strong>restive</strong> after waiting three hours for the concert to begin."
+                },
+                {
+                    word: "Ingenuous",
+                    soundsLike: "Ingenious (clever)",
+                    actualMeaning: "Innocent, naive, and uncalculating.",
+                    example: "Her <strong>ingenuous</strong> belief that everyone told the truth made her an easy target for scammers."
+                },
+                {
+                    word: "Prosaic",
+                    soundsLike: "Pros (good/positive)",
+                    actualMeaning: "Dull, unimaginative, or everyday/ordinary.",
+                    example: "The title promised a thrilling adventure, but the book was filled with <strong>prosaic</strong> descriptions of filing taxes."
+                },
+                {
+                    word: "Inflammable",
+                    soundsLike: "Not flammable",
+                    actualMeaning: "Easily set on fire (combustible).",
+                    example: "Warning: The chemicals in this barrel are highly <strong>inflammable</strong> and must be kept away from sparks."
+                },
+                {
+                    word: "Mendacious",
+                    soundsLike: "Mending / Healing",
+                    actualMeaning: "Given to lying; consistently deceitful.",
+                    example: "The politician's <strong>mendacious</strong> claims were quickly debunked by fact-checkers."
+                }
+            ]
+        };
+
+        // --- State Management ---
+        let chartInstance = null;
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            calculateStats();
+            renderSynonymThemes();
+            renderAntonyms();
+            renderMalapropisms();
+            initChart();
+
+            // Search setup
+            const searchInput = document.getElementById('searchInput');
+            const mobileSearchInput = document.getElementById('mobileSearchInput');
+            
+            searchInput.addEventListener('input', (e) => handleSearch(e.target.value));
+            mobileSearchInput.addEventListener('input', (e) => {
+                searchInput.value = e.target.value; // sync
+                handleSearch(e.target.value);
+            });
+        });
+
+        // --- Navigation Logic ---
+        function switchTab(tabId) {
+            // Hide all sections
+            ['overview', 'synonyms', 'antonyms', 'malapropisms'].forEach(id => {
+                document.getElementById(`section-${id}`).classList.add('hidden');
+                document.getElementById(`section-${id}`).classList.remove('block');
+                
+                // Update tab styles
+                const tab = document.getElementById(`tab-${id}`);
+                tab.classList.remove('tab-active');
+                tab.classList.add('tab-inactive');
+            });
+
+            // Show selected section
+            document.getElementById(`section-${tabId}`).classList.remove('hidden');
+            document.getElementById(`section-${tabId}`).classList.add('block');
+            
+            // Highlight active tab
+            const activeTab = document.getElementById(`tab-${tabId}`);
+            activeTab.classList.remove('tab-inactive');
+            activeTab.classList.add('tab-active');
+
+            // Hide search if navigating away via tabs
+            clearSearch(false);
+        }
+
+        // --- Rendering Logic ---
+        function calculateStats() {
+            let totalWords = 0;
+            greData.synonyms.forEach(group => totalWords += group.words.length);
+            greData.antonyms.forEach(pair => totalWords += 2);
+            totalWords += greData.malapropisms.length;
+
+            document.getElementById('stat-total').innerText = totalWords;
+            document.getElementById('stat-clusters').innerText = greData.synonyms.length;
+            document.getElementById('stat-pairs').innerText = greData.antonyms.length;
+        }
+
+        function renderSynonymThemes() {
+            const sidebar = document.getElementById('synonym-sidebar');
+            sidebar.innerHTML = '';
+
+            greData.synonyms.forEach((group, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full text-left px-4 py-3 rounded-lg border border-stone-200 bg-white hover:bg-sky-50 hover:border-sky-200 transition-all focus:outline-none focus:ring-2 focus:ring-sky-500';
+                btn.innerHTML = `<span class="mr-2">${group.icon}</span> <span class="font-medium text-stone-700">${group.theme}</span> <span class="float-right text-xs bg-stone-100 text-stone-500 px-2 py-1 rounded-full">${group.words.length}</span>`;
+                
+                btn.onclick = () => {
+                    // Reset active states in sidebar
+                    Array.from(sidebar.children).forEach(child => {
+                        child.classList.remove('bg-sky-50', 'border-sky-400', 'ring-2', 'ring-sky-200');
+                        child.classList.add('bg-white', 'border-stone-200');
+                    });
+                    btn.classList.remove('bg-white', 'border-stone-200');
+                    btn.classList.add('bg-sky-50', 'border-sky-400', 'ring-2', 'ring-sky-200');
+                    
+                    renderSynonymDetails(index);
+                };
+                sidebar.appendChild(btn);
+            });
+        }
+
+        function renderSynonymDetails(index) {
+            const group = greData.synonyms[index];
+            const detailsPanel = document.getElementById('synonym-details');
+            
+            let html = `
+                <div class="flex items-center gap-3 mb-6 border-b border-stone-200 pb-4">
+                    <span class="text-4xl">${group.icon}</span>
+                    <h3 class="text-2xl font-bold text-stone-800">${group.theme}</h3>
+                </div>
+                <div class="space-y-4">
+            `;
+
+            group.words.forEach(item => {
+                html += `
+                    <div class="p-4 rounded-lg bg-stone-50 border border-stone-100 hover:shadow-md transition-shadow">
+                        <h4 class="text-xl font-bold text-sky-800 mb-1 serif-font tracking-wide">${item.word}</h4>
+                        <p class="text-stone-800 font-medium mb-2">${item.def}</p>
+                        <div class="bg-amber-50 border-l-4 border-amber-400 p-2 text-sm text-stone-700">
+                            <strong class="text-amber-800">Nuance:</strong> ${item.nuance}
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `</div>`;
+            detailsPanel.innerHTML = html;
+        }
+
+        function renderAntonyms() {
+            const grid = document.getElementById('antonym-grid');
+            let html = '';
+
+            greData.antonyms.forEach(item => {
+                html += `
+                    <div class="bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden flex flex-col">
+                        <div class="bg-stone-100 px-4 py-2 text-xs font-bold text-stone-500 uppercase tracking-wider text-center border-b border-stone-200">
+                            Concept: ${item.concept}
+                        </div>
+                        <div class="flex flex-col sm:flex-row flex-grow relative">
+                            <!-- VS Badge -->
+                            <div class="hidden sm:flex absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-full w-8 h-8 items-center justify-center font-bold text-stone-400 border border-stone-200 shadow-sm z-10">VS</div>
+                            
+                            <div class="flex-1 p-5 border-b sm:border-b-0 sm:border-r border-stone-100">
+                                <h4 class="text-xl font-bold text-emerald-700 mb-2 serif-font tracking-wide text-center sm:text-left">${item.pair[0]}</h4>
+                                <p class="text-sm text-stone-600 text-center sm:text-left">${item.word1Def}</p>
+                            </div>
+                            <div class="flex-1 p-5">
+                                <h4 class="text-xl font-bold text-rose-700 mb-2 serif-font tracking-wide text-center sm:text-right">${item.pair[1]}</h4>
+                                <p class="text-sm text-stone-600 text-center sm:text-right">${item.word2Def}</p>
+                            </div>
+                        </div>
+                        <div class="bg-stone-50 p-4 border-t border-stone-100 text-sm text-stone-600 italic">
+                            "${item.example}"
+                        </div>
+                    </div>
+                `;
+            });
+            grid.innerHTML = html;
+        }
+
+        function renderMalapropisms() {
+            const grid = document.getElementById('malapropism-grid');
+            let html = '';
+
+            greData.malapropisms.forEach(item => {
+                html += `
+                    <div class="bg-white rounded-xl shadow-sm border border-stone-200 p-6 relative overflow-hidden group hover:border-sky-300 transition-colors">
+                        <div class="absolute top-0 right-0 bg-red-100 text-red-800 text-xs font-bold px-2 py-1 rounded-bl-lg z-10">
+                            TRAP
+                        </div>
+                        <h4 class="text-2xl font-bold text-stone-800 mb-1 serif-font">${item.word}</h4>
+                        <div class="flex items-center text-sm text-red-600 font-medium mb-4">
+                            <span class="mr-1">⚠️ Sounds like:</span> 
+                            <span class="line-through opacity-70">${item.soundsLike}</span>
+                        </div>
+                        <div class="bg-sky-50 rounded p-3 mb-4 border-l-4 border-sky-500">
+                            <span class="block text-xs text-sky-800 uppercase font-bold mb-1">Actual Meaning:</span>
+                            <span class="text-stone-800">${item.actualMeaning}</span>
+                        </div>
+                        <p class="text-sm text-stone-500 italic">"${item.example}"</p>
+                    </div>
+                `;
+            });
+            grid.innerHTML = html;
+        }
+
+        // --- Visualization Logic ---
+        function initChart() {
+            const ctx = document.getElementById('themeChart').getContext('2d');
+            
+            // Extract data for chart
+            const labels = greData.synonyms.map(g => g.theme);
+            const data = greData.synonyms.map(g => g.words.length);
+            
+            // Warm neutral & sky palette
+            const backgroundColors = [
+                'rgba(14, 165, 233, 0.7)', // sky-500
+                'rgba(245, 158, 11, 0.7)', // amber-500
+                'rgba(16, 185, 129, 0.7)', // emerald-500
+                'rgba(99, 102, 241, 0.7)', // indigo-500
+                'rgba(244, 63, 94, 0.7)',  // rose-500
+                'rgba(139, 92, 246, 0.7)', // violet-500
+                'rgba(168, 162, 158, 0.7)',// stone-400
+                'rgba(148, 163, 184, 0.7)' // slate-400
+            ];
+
+            const borderColors = backgroundColors.map(c => c.replace('0.7', '1'));
+
+            chartInstance = new Chart(ctx, {
+                type: 'polarArea',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Words in Theme',
+                        data: data,
+                        backgroundColor: backgroundColors,
+                        borderColor: borderColors,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false, // CRITICAL for filling container
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                font: { family: "'Inter', sans-serif" },
+                                color: '#44403c' // stone-700
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(28, 25, 23, 0.9)', // stone-900
+                            titleFont: { family: "'Inter', sans-serif", size: 14 },
+                            bodyFont: { family: "'Inter', sans-serif", size: 13 },
+                            padding: 12,
+                            callbacks: {
+                                label: function(context) {
+                                    return ` ${context.label}: ${context.raw} words`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        r: {
+                            ticks: { display: false }, // Hide background circles numbers
+                            grid: { color: 'rgba(214, 211, 209, 0.5)' } // stone-300
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- Search Logic ---
+        function handleSearch(query) {
+            query = query.toLowerCase().trim();
+            const resultsPanel = document.getElementById('searchResults');
+            const contentPanel = document.getElementById('searchContent');
+            
+            if (query.length < 2) {
+                resultsPanel.classList.add('hidden');
+                return;
+            }
+
+            let resultsHTML = '';
+            let count = 0;
+
+            // Search Synonyms
+            greData.synonyms.forEach(group => {
+                group.words.forEach(w => {
+                    if (w.word.toLowerCase().includes(query) || w.def.toLowerCase().includes(query)) {
+                        resultsHTML += createSearchResultCard(w.word, 'Synonym', `Theme: ${group.theme}`, w.def);
+                        count++;
+                    }
+                });
+            });
+
+            // Search Antonyms
+            greData.antonyms.forEach(pair => {
+                if (pair.pair[0].toLowerCase().includes(query) || pair.pair[1].toLowerCase().includes(query)) {
+                    resultsHTML += createSearchResultCard(`${pair.pair[0]} / ${pair.pair[1]}`, 'Antonym Pair', `Concept: ${pair.concept}`, `Contrasts: ${pair.word1Def} VS ${pair.word2Def}`);
+                    count++;
+                }
+            });
+
+            // Search Malapropisms
+            greData.malapropisms.forEach(m => {
+                if (m.word.toLowerCase().includes(query) || m.actualMeaning.toLowerCase().includes(query)) {
+                    resultsHTML += createSearchResultCard(m.word, 'Tricky Word', `Sounds like: ${m.soundsLike}`, m.actualMeaning);
+                    count++;
+                }
+            });
+
+            if (count === 0) {
+                resultsHTML = `<p class="text-stone-500 italic">No results found for "${query}". Try another word.</p>`;
+            }
+
+            contentPanel.innerHTML = resultsHTML;
+            resultsPanel.classList.remove('hidden');
+            
+            // Scroll to results
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function createSearchResultCard(title, type, subtitle, description) {
+            let typeColor = 'bg-stone-200 text-stone-700';
+            if(type === 'Synonym') typeColor = 'bg-blue-100 text-blue-800';
+            if(type === 'Antonym Pair') typeColor = 'bg-emerald-100 text-emerald-800';
+            if(type === 'Tricky Word') typeColor = 'bg-red-100 text-red-800';
+
+            return `
+                <div class="bg-white p-4 rounded-lg shadow-sm border border-sky-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <div class="flex items-center gap-3 mb-1">
+                            <h4 class="text-lg font-bold text-stone-800 serif-font">${title}</h4>
+                            <span class="text-xs px-2 py-1 rounded-full font-bold uppercase tracking-wider ${typeColor}">${type}</span>
+                        </div>
+                        <p class="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-2">${subtitle}</p>
+                        <p class="text-sm text-stone-700">${description}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function clearSearch(clearInputs = true) {
+            document.getElementById('searchResults').classList.add('hidden');
+            if(clearInputs) {
+                document.getElementById('searchInput').value = '';
+                document.getElementById('mobileSearchInput').value = '';
+            }
+        }
+
+    </script>
+</body>
+</html>
