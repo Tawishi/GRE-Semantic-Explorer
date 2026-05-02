@@ -8,37 +8,37 @@
   {
     "word": "aberration",
     "def": "a deviation from what is normal or expected.",
-    "pos": "noun[cite: 2]",
-    "ex": "Aberrations in climate have become the norm... making headlines[cite: 2]."
+    "pos": "noun",
+    "ex": "Aberrations in climate have become the norm... making headlines."
   },
   {
     "word": "abjure",
-    "def": "formally reject or give up (as a belief)[cite: 2].",
-    "pos": "verb[cite: 2]",
-    "ex": "While the church believed that Galileo abjured the heliocentric theory...[cite: 2]"
+    "def": "formally reject or give up (as a belief).",
+    "pos": "verb",
+    "ex": "While the church believed that Galileo abjured the heliocentric theory..."
   },
   {
     "word": "aboveboard",
-    "def": "open and honest[cite: 2].",
-    "pos": "adjective[cite: 2]",
-    "ex": "The mayor... was hardly aboveboard[cite: 2]."
+    "def": "open and honest.",
+    "pos": "adjective",
+    "ex": "The mayor... was hardly aboveboard."
   },
   {
     "word": "abrogate",
-    "def": "revoke formally[cite: 2].",
-    "pos": "verb[cite: 2]",
-    "ex": "the workers abrogated their right to strike for four years[cite: 2]."
+    "def": "revoke formally.",
+    "pos": "verb",
+    "ex": "the workers abrogated their right to strike for four years."
   },
   {
     "word": "abstain",
-    "def": "choose not to consume or take part in[cite: 2].",
-    "pos": "verb[cite: 2]",
-    "ex": "Jessica abstained from anything containing sugar[cite: 2]."
+    "def": "choose not to consume or take part in.",
+    "pos": "verb",
+    "ex": "Jessica abstained from anything containing sugar."
   },
   {
     "word": "abstruse",
-    "def": "difficult to understand; incomprehensible[cite: 2].",
-    "pos": "adjective[cite: 2]",
-    "ex": "Physics textbooks can seem so abstruse to the uninitiated[cite: 2]."
+    "def": "difficult to understand; incomprehensible.",
+    "pos": "adjective",
+    "ex": "Physics textbooks can seem so abstruse to the uninitiated."
   }
 ]
