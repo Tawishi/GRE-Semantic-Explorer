@@ -152,12 +152,12 @@
                 }
             ],
             antonyms: [
-                { pair: ["Mitigate", "Exacerbate"], concept: "Severity", word1Def: "Make less severe.", word2Def: "Make worse.", example: "Medicine can <strong>mitigate</strong> pain, or a reaction can <strong>exacerbate</strong> it." },
-                { pair: ["Ephemeral", "Perennial"], concept: "Duration", word1Def: "Lasting a short time.", word2Def: "Lasting indefinitely.", example: "Trends are <strong>ephemeral</strong>; classics are <strong>perennial</strong>." }
+                { pair: ["Mitigate", "Exacerbate"], concept: "Severity", word1Def: "Make less severe.", word2Def: "Make worse.", example: "Medicine can mitigate pain, or a reaction can exacerbate it." },
+                { pair: ["Ephemeral", "Perennial"], concept: "Duration", word1Def: "Lasting a short time.", word2Def: "Lasting indefinitely.", example: "Trends are ephemeral; classics are perennial." }
             ],
             malapropisms: [
-                { word: "Enervate", soundsLike: "Energize", actualMeaning: "To sap energy from.", example: "The sun <strong>enervated</strong> him." },
-                { word: "Ingenuous", soundsLike: "Ingenious", actualMeaning: "Naive and innocent.", example: "Her <strong>ingenuous</strong> belief made her a target." }
+                { word: "Enervate", soundsLike: "Energize", actualMeaning: "To sap energy from.", example: "The sun enervated him." },
+                { word: "Ingenuous", soundsLike: "Ingenious", actualMeaning: "Naive and innocent.", example: "Her ingenuous belief made her a target." }
             ]
         };
 
@@ -178,11 +178,18 @@
         // --- Core Functions ---
         function switchTab(tabId) {
             ['overview', 'synonyms', 'antonyms', 'malapropisms'].forEach(id => {
-                document.getElementById(`section-${id}`).classList.add('hidden');
-                document.getElementById(`tab-${id}`).classList.replace('tab-active', 'tab-inactive');
+                const section = document.getElementById(`section-${id}`);
+                const tab = document.getElementById(`tab-${id}`);
+                if (section && tab) {
+                    section.classList.add('hidden');
+                    tab.classList.remove('tab-active');
+                    tab.classList.add('tab-inactive');
+                }
             });
             document.getElementById(`section-${tabId}`).classList.remove('hidden');
-            document.getElementById(`tab-${tabId}`).classList.replace('tab-inactive', 'tab-active');
+            const activeTab = document.getElementById(`tab-${tabId}`);
+            activeTab.classList.remove('tab-inactive');
+            activeTab.classList.add('tab-active');
             clearSearch(false);
         }
 
@@ -195,7 +202,6 @@
             let html = '';
             let count = 0;
 
-            // Search Master Library
             masterLibrary.forEach(item => {
                 if (item.word.toLowerCase().includes(query) || item.def.toLowerCase().includes(query)) {
                     html += `<div class="bg-white p-4 rounded-lg border border-sky-100 shadow-sm">
@@ -225,14 +231,14 @@
             const sidebar = document.getElementById('synonym-sidebar');
             greData.synonyms.forEach((g, i) => {
                 const btn = document.createElement('button');
-                btn.className = 'w-full text-left px-4 py-3 rounded-lg border bg-white hover:bg-sky-50 transition-all';
+                btn.className = 'w-full text-left px-4 py-3 rounded-lg border bg-white hover:bg-sky-50 transition-all mb-2';
                 btn.innerHTML = `${g.icon} <span class="font-medium text-stone-700">${g.theme}</span>`;
-                btn.onclick = () => renderDetails(i, btn);
+                btn.onclick = () => renderDetails(i);
                 sidebar.appendChild(btn);
             });
         }
 
-        function renderDetails(index, btn) {
+        function renderDetails(index) {
             const group = greData.synonyms[index];
             document.getElementById('synonym-details').innerHTML = `
                 <div class="mb-6 border-b pb-4"><h3 class="text-2xl font-bold">${group.icon} ${group.theme}</h3></div>
