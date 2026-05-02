@@ -73,14 +73,14 @@
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-100 flex items-center gap-4">
                     <div class="text-4xl">🔗</div>
                     <div>
-                        <div class="text-2xl font-bold text-stone-800" id="stat-clusters">10</div>
+                        <div class="text-2xl font-bold text-stone-800" id="stat-clusters">--</div>
                         <div class="text-sm text-stone-500 uppercase tracking-wide">Semantic Clusters</div>
                     </div>
                 </div>
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-100 flex items-center gap-4">
                     <div class="text-4xl">⚖️</div>
                     <div>
-                        <div class="text-2xl font-bold text-stone-800" id="stat-pairs">6</div>
+                        <div class="text-2xl font-bold text-stone-800" id="stat-pairs">--</div>
                         <div class="text-sm text-stone-500 uppercase tracking-wide">Key Contrasts</div>
                     </div>
                 </div>
@@ -119,8 +119,7 @@
     </main>
 
     <script>
-        // --- Data Definitions ---
-        const greData = {
+       const greData = {
     synonyms: [
         {
             theme: "Criticize, Scold, or Reprove",
@@ -336,9 +335,7 @@
             example: "His <strong>prosaic</strong> mosaic was quite boring[cite: 2]."
         }
     ]
-};
 
-        // --- Master Library Logic ---
         let masterLibrary = [];
 
         async function loadLibrary() {
@@ -348,11 +345,10 @@
                 masterLibrary = await response.json();
                 document.getElementById('stat-total').innerText = masterLibrary.length;
             } catch (e) {
-                console.warn("words.json not found. Search will use curated list only.");
+                console.warn("words.json not found.");
             }
         }
 
-        // --- Core Functions ---
         function switchTab(tabId) {
             ['overview', 'synonyms', 'antonyms', 'malapropisms'].forEach(id => {
                 const section = document.getElementById(`section-${id}`);
@@ -403,7 +399,6 @@
             }
         }
 
-        // --- Render Helpers ---
         function renderSynonyms() {
             const sidebar = document.getElementById('synonym-sidebar');
             greData.synonyms.forEach((g, i) => {
@@ -413,6 +408,7 @@
                 btn.onclick = () => renderDetails(i);
                 sidebar.appendChild(btn);
             });
+            document.getElementById('stat-clusters').innerText = greData.synonyms.length;
         }
 
         function renderDetails(index) {
@@ -426,6 +422,45 @@
                         <div class="text-xs bg-amber-50 p-2 border-l-4 border-amber-400 text-stone-600"><strong>Nuance:</strong> ${w.nuance}</div>
                     </div>`).join('')}
                 </div>`;
+        }
+
+        function renderAntonyms() {
+            const grid = document.getElementById('antonym-grid');
+            grid.innerHTML = greData.antonyms.map(a => `
+                <div class="bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden flex flex-col">
+                    <div class="bg-stone-100 px-4 py-2 text-xs font-bold text-stone-500 uppercase tracking-wider text-center border-b border-stone-200">
+                        Concept: ${a.concept}
+                    </div>
+                    <div class="flex flex-col sm:flex-row flex-grow relative">
+                        <div class="flex-1 p-5 border-b sm:border-b-0 sm:border-r border-stone-100">
+                            <h4 class="text-xl font-bold text-emerald-700 mb-2 serif-font tracking-wide">${a.pair[0]}</h4>
+                            <p class="text-sm text-stone-600">${a.word1Def}</p>
+                        </div>
+                        <div class="flex-1 p-5">
+                            <h4 class="text-xl font-bold text-rose-700 mb-2 serif-font tracking-wide">${a.pair[1]}</h4>
+                            <p class="text-sm text-stone-600">${a.word2Def}</p>
+                        </div>
+                    </div>
+                    <div class="bg-stone-50 p-4 border-t border-stone-100 text-sm text-stone-600 italic">"${a.example}"</div>
+                </div>`).join('');
+            document.getElementById('stat-pairs').innerText = greData.antonyms.length;
+        }
+
+        function renderMalapropisms() {
+            const grid = document.getElementById('malapropism-grid');
+            grid.innerHTML = greData.malapropisms.map(m => `
+                <div class="bg-white rounded-xl shadow-sm border border-stone-200 p-6 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 bg-red-100 text-red-800 text-xs font-bold px-2 py-1 rounded-bl-lg">TRAP</div>
+                    <h4 class="text-2xl font-bold text-stone-800 mb-1 serif-font">${m.word}</h4>
+                    <div class="flex items-center text-sm text-red-600 font-medium mb-4">
+                        <span class="mr-1">⚠️ Sounds like:</span> <span class="line-through opacity-70">${m.soundsLike}</span>
+                    </div>
+                    <div class="bg-sky-50 rounded p-3 mb-4 border-l-4 border-sky-500">
+                        <span class="block text-xs text-sky-800 uppercase font-bold mb-1">Actual Meaning:</span>
+                        <span class="text-stone-800">${m.actualMeaning}</span>
+                    </div>
+                    <p class="text-sm text-stone-500 italic">"${m.example}"</p>
+                </div>`).join('');
         }
 
         function initChart() {
@@ -443,6 +478,8 @@
         document.addEventListener('DOMContentLoaded', () => {
             loadLibrary();
             renderSynonyms();
+            renderAntonyms();
+            renderMalapropisms();
             initChart();
             document.getElementById('searchInput').addEventListener('input', e => handleSearch(e.target.value));
             document.getElementById('mobileSearchInput').addEventListener('input', e => handleSearch(e.target.value));
