@@ -121,45 +121,222 @@
     <script>
         // --- Data Definitions ---
         const greData = {
-            synonyms: [
-                {
-                    theme: "Criticize, Scold, or Reprove",
-                    icon: "🗣️",
-                    words: [
-                        { word: "Castigate", def: "Reprimand harshly.", nuance: "Severe, often public discipline." },
-                        { word: "Chastise", def: "Reprimand severely.", nuance: "Strong verbal discipline." },
-                        { word: "Excoriate", def: "To criticize very harshly.", nuance: "Stinging public disapproval." },
-                        { word: "Upbraid", def: "To reproach or scold.", nuance: "Finding fault with behavior." }
-                    ]
-                },
-                {
-                    theme: "Stubborn or Inflexible",
-                    icon: "🧱",
-                    words: [
-                        { word: "Obdurate", def: "Stubbornly persistent in changing an opinion.", nuance: "Hardened against persuasion." },
-                        { word: "Intransigent", def: "Unwilling to change one's beliefs.", nuance: "Refusal to compromise in negotiations." },
-                        { word: "Adamant", def: "Refusing to change one's mind.", nuance: "Unyielding resolve." }
-                    ]
-                },
-                {
-                    theme: "Wealthy or Generous",
-                    icon: "💰",
-                    words: [
-                        { word: "Affluent", def: "Wealthy.", nuance: "Possessing material riches." },
-                        { word: "Munificent", def: "Very generous (with money).", nuance: "Lavish giving." },
-                        { word: "Magnanimous", def: "Noble and generous in spirit.", nuance: "Generosity toward a rival." }
-                    ]
-                }
-            ],
-            antonyms: [
-                { pair: ["Mitigate", "Exacerbate"], concept: "Severity", word1Def: "Make less severe.", word2Def: "Make worse.", example: "Medicine can mitigate pain, or a reaction can exacerbate it." },
-                { pair: ["Ephemeral", "Perennial"], concept: "Duration", word1Def: "Lasting a short time.", word2Def: "Lasting indefinitely.", example: "Trends are ephemeral; classics are perennial." }
-            ],
-            malapropisms: [
-                { word: "Enervate", soundsLike: "Energize", actualMeaning: "To sap energy from.", example: "The sun enervated him." },
-                { word: "Ingenuous", soundsLike: "Ingenious", actualMeaning: "Naive and innocent.", example: "Her ingenuous belief made her a target." }
+    synonyms: [
+        {
+            theme: "Criticize, Scold, or Reprove",
+            icon: "🗣️",
+            words: [
+                { word: "Castigate", def: "Reprimand harshly.", nuance: "Severe, often formal discipline." },
+                { word: "Chastise", def: "Reprimand severely.", nuance: "Often implies verbal or physical discipline[cite: 2]." },
+                { word: "Upbraid", def: "To reproach or scold[cite: 2].", nuance: "Finding fault with someone[cite: 2]." },
+                { word: "Reproach", def: "To express criticism towards[cite: 2].", nuance: "Blame mixed with disappointment[cite: 2]." },
+                { word: "Censure", def: "To express strong disapproval[cite: 2].", nuance: "Commonly used for official/government reprimands[cite: 2]." },
+                { word: "Excoriate", def: "To criticize very harshly[cite: 2].", nuance: "Stinging public disapproval[cite: 2]." },
+                { word: "Objurgate", def: "Express strong disapproval of[cite: 2].", nuance: "Formal or severe scolding[cite: 2]." },
+                { word: "Vituperate", def: "To criticize harshly; to berate[cite: 2].", nuance: "Savage or abusive verbal attack[cite: 2]." },
+                { word: "Rebuke", def: "Criticize severely or angrily[cite: 2].", nuance: "A sharp, direct check to behavior[cite: 2]." },
+                { word: "Denigrate", def: "Attack the good name and reputation of someone[cite: 2].", nuance: "Focuses on belittling or defaming[cite: 2]." }
             ]
-        };
+        },
+        {
+            theme: "Praise, Respect, or Honor",
+            icon: "🌟",
+            words: [
+                { word: "Venerate", def: "To respect deeply[cite: 2].", nuance: "Hallowed respect for age or tradition[cite: 2]." },
+                { word: "Lionize", def: "Assign great social importance to[cite: 2].", nuance: "Treating someone like a celebrity[cite: 2]." },
+                { word: "Exalt", def: "Praise or glorify[cite: 2].", nuance: "To lift up in rank or estimation[cite: 2]." },
+                { word: "Adulate", def: "To praise excessively[cite: 2].", nuance: "Extreme flattery, bordering on worship[cite: 2]." },
+                { word: "Approbatory", def: "Expressing praise or approval[cite: 2].", nuance: "A general state of agreement[cite: 2]." },
+                { word: "Laudable", def: "Worthy of high praise[cite: 2].", nuance: "Actions that deserve commendation[cite: 2]." },
+                { word: "Commendable", def: "Worthy of high praise[cite: 2].", nuance: "Standard word for praiseworthy efforts[cite: 2]." }
+            ]
+        },
+        {
+            theme: "Stubborn, Inflexible, or Defiant",
+            icon: "🧱",
+            words: [
+                { word: "Obdurate", def: "Stubbornly persistent in changing an opinion[cite: 2].", nuance: "Hardened against feeling or persuasion[cite: 2]." },
+                { word: "Intransigent", def: "Unwilling to change one's beliefs[cite: 2].", nuance: "Refusal to compromise in negotiations[cite: 2]." },
+                { word: "Obstinate", def: "Resistant to guidance; stubbornly persistent[cite: 2].", nuance: "Willful adherence to an opinion[cite: 2]." },
+                { word: "Recalcitrant", def: "Obstinately uncooperative attitude[cite: 2].", nuance: "Defiance of authority or discipline[cite: 2]." },
+                { word: "Intractable", def: "Hard to control or deal with[cite: 2].", nuance: "Applies to both people and complex problems[cite: 2]." },
+                { word: "Adamant", def: "Refusing to change one's mind[cite: 2].", nuance: "Unyielding; rooted in place[cite: 2]." }
+            ]
+        },
+        {
+            theme: "Brief, Quiet, or Concise",
+            icon: "✂️",
+            words: [
+                { word: "Laconic", def: "One who says very few words[cite: 2].", nuance: "Brevity to the point of appearing mysterious[cite: 2]." },
+                { word: "Terse", def: "Sparing in the use of words; abrupt[cite: 2].", nuance: "Often carries a negative, unfriendly tone[cite: 2]." },
+                { word: "Pithy", def: "Concise and full of meaning[cite: 2].", nuance: "Brief but forcefully expressive and positive[cite: 2]." },
+                { word: "Taciturn", def: "Habitually reserved and uncommunicative[cite: 2].", nuance: "A deep-seated personality trait[cite: 2]." },
+                { word: "Reticent", def: "Reluctant to draw attention to yourself[cite: 2].", nuance: "Disinclined to talk, often out of caution[cite: 2]." }
+            ]
+        },
+        {
+            theme: "Talkative, Wordy, or Rambling",
+            icon: "🦜",
+            words: [
+                { word: "Garrulous", def: "Full of trivial conversation[cite: 2].", nuance: "Rambling about unimportant matters[cite: 2]." },
+                { word: "Loquacious", def: "Tending to talk a great deal[cite: 2].", nuance: "General tendency toward being talkative[cite: 2]." },
+                { word: "Prolix", def: "Boring verbosity[cite: 2].", nuance: "Tedious, overly long speech or writing[cite: 2]." },
+                { word: "Verbose", def: "Using more words than needed[cite: 2].", nuance: "The literal definition of 'wordy'[cite: 2]." },
+                { word: "Voluble", def: "Talking or writing easily and continuously[cite: 2].", nuance: "Implies a smooth, rapid flow of speech[cite: 2]." },
+                { word: "Maunder", def: "Speak rapidly and incessantly[cite: 2].", nuance: "Confused or aimless chatter[cite: 2]." }
+            ]
+        },
+        {
+            theme: "Difficult, Complicated, or Hidden",
+            icon: "🧩",
+            words: [
+                { word: "Abstruse", def: "Difficult to understand; incomprehensible[cite: 2].", nuance: "Complex intellectual matter (e.g. physics)[cite: 2]." },
+                { word: "Recondite", def: "Difficult to understand; obscure[cite: 2].", nuance: "Little known or academic subjects[cite: 2]." },
+                { word: "Arcane", def: "Requiring secret or mysterious knowledge[cite: 2].", nuance: "Often implies hidden rituals or ancient info[cite: 2]." },
+                { word: "Esoteric", def: "Understandable by only an inner circle[cite: 2].", nuance: "Intended for a very specific, limited audience[cite: 2]." },
+                { word: "Inscrutable", def: "Not easily understood; unfathomable[cite: 2].", nuance: "Impossible to read (often used for expressions)[cite: 2]." },
+                { word: "Opaque", def: "Not clearly understood or expressed[cite: 2].", nuance: "Meaning that is blocked or not transparent[cite: 2]." }
+            ]
+        },
+        {
+            theme: "Wealthy, Generous, or Abundant",
+            icon: "💰",
+            words: [
+                { word: "Affluent", def: "Wealthy[cite: 2].", nuance: "Possessing material riches[cite: 2]." },
+                { word: "Munificent", def: "Very generous (with money)[cite: 2].", nuance: "Lavish giving, often to others[cite: 2]." },
+                { word: "Largess", def: "Extreme generosity and giving[cite: 2].", nuance: "The act of being a benefactor[cite: 2]." },
+                { word: "Magnanimous", def: "Noble and generous in spirit[cite: 2].", nuance: "Generosity toward a rival or lesser person[cite: 2]." },
+                { word: "Copious", def: "In abundant supply[cite: 2].", nuance: "A large quantity of something[cite: 2]." },
+                { word: "Replete", def: "Completely stocked or furnished[cite: 2].", nuance: "Being full of something good[cite: 2]." }
+            ]
+        },
+        {
+            theme: "Poor, Greedy, or Stingy",
+            icon: "📉",
+            words: [
+                { word: "Destitute", def: "Poor enough to need help from others[cite: 2].", nuance: "Lacking the basic necessities of life[cite: 2]." },
+                { word: "Indigent", def: "Poor; having very little[cite: 2].", nuance: "A state of needing assistance[cite: 2]." },
+                { word: "Impecunious", def: "Lacking money; poor[cite: 2].", nuance: "Habitually having no money[cite: 2]." },
+                { word: "Penurious", def: "Lacking money; miserly[cite: 2].", nuance: "Can mean both poor or extremely stingy[cite: 2]." },
+                { word: "Parsimonious", def: "Extremely frugal; miserly[cite: 2].", nuance: "Unwilling to spend any money[cite: 2]." },
+                { word: "Avarice", def: "Greed[cite: 2].", nuance: "One of the 'deadly sins' of greed[cite: 2]." },
+                { word: "Pittance", def: "A small amount (of money)[cite: 2].", nuance: "An inadequate, tiny payment[cite: 2]." }
+            ]
+        },
+        {
+            theme: "Harmful, Destructive, or Evil",
+            icon: "⚠️",
+            words: [
+                { word: "Deleterious", def: "Harmful to living things[cite: 2].", nuance: "Causing injury or damage[cite: 2]." },
+                { word: "Pernicious", def: "Exceedingly harmful[cite: 2].", nuance: "Harm that spreads in a hidden, subtle way[cite: 2]." },
+                { word: "Inimical", def: "Hostile[cite: 2].", nuance: "Conditions/environments that oppose life[cite: 2]." },
+                { word: "Detrimental", def: "Causing harm or injury[cite: 2].", nuance: "General word for being damaging[cite: 2]." },
+                { word: "Diabolical", def: "Extremely wicked; like the devil[cite: 2].", nuance: "Maliciously evil plans[cite: 2]." },
+                { word: "Malevolent", def: "Wishing evil to others[cite: 2].", nuance: "Rooted in intense ill-will[cite: 2]." },
+                { word: "Fell", def: "Terribly evil[cite: 2].", nuance: "Used for villains or lethal forces[cite: 2]." }
+            ]
+        },
+        {
+            theme: "Bold, Brave, or Courageous",
+            icon: "⚔️",
+            words: [
+                { word: "Intrepid", def: "Fearless[cite: 2].", nuance: "Brave in the face of danger[cite: 2]." },
+                { word: "Audacious", def: "Willing to be bold or take risks[cite: 2].", nuance: "Can imply either bravery or social rudeness[cite: 2]." },
+                { word: "Doughty", def: "Brave; bold; courageous[cite: 2].", nuance: "Often used for a persistent, gritty hero[cite: 2]." },
+                { word: "Mettlesome", def: "Filled with courage or valor[cite: 2].", nuance: "Having a resilient, spirited nature[cite: 2]." },
+                { word: "Plucky", def: "Marked by courage and determination[cite: 2].", nuance: "Often used for an underdog or small fighter[cite: 2]." }
+            ]
+        }
+    ],
+    antonyms: [
+        {
+            pair: ["Mitigate", "Exacerbate"],
+            concept: "Severity",
+            word1Def: "Make less severe[cite: 2].",
+            word2Def: "Make worse[cite: 2].",
+            example: "The ice served to <strong>mitigate</strong> the swelling, while the heat only <strong>exacerbated</strong> it[cite: 2]."
+        },
+        {
+            pair: ["Auspicious", "Sinister"],
+            concept: "Omens",
+            word1Def: "Favorable[cite: 2].",
+            word2Def: "Evil; threatening[cite: 2].",
+            example: "The bright sun was an <strong>auspicious</strong> start, but the dark clouds looked <strong>sinister</strong>[cite: 2]."
+        },
+        {
+            pair: ["Munificent", "Parsimonious"],
+            concept: "Spending",
+            word1Def: "Very generous[cite: 2].",
+            word2Def: "Extremely frugal/miserly[cite: 2].",
+            example: "The <strong>munificent</strong> donor gave millions, while the <strong>parsimonious</strong> heir saved every cent[cite: 2]."
+        },
+        {
+            pair: ["Arduous", "Facile"],
+            concept: "Difficulty",
+            word1Def: "Demanding great effort[cite: 2].",
+            word2Def: "Arrived at without effort; lacking depth[cite: 2].",
+            example: "Climbing Everest is <strong>arduous</strong>, but the tour guide's explanation was <strong>facile</strong>[cite: 2]."
+        },
+        {
+            pair: ["Ephemeral", "Perennial"],
+            concept: "Duration",
+            word1Def: "Lasting a short time[cite: 2].",
+            word2Def: "Lasting an indefinitely long time[cite: 2].",
+            example: "Fashion trends are <strong>ephemeral</strong>, but the search for truth is <strong>perennial</strong>[cite: 2]."
+        },
+        {
+            pair: ["Pellucid", "Arcane"],
+            concept: "Clarity",
+            word1Def: "Transparently clear[cite: 2].",
+            word2Def: "Secret or mysterious[cite: 2].",
+            example: "The prose was <strong>pellucid</strong>, making the <strong>arcane</strong> scientific law easy to grasp[cite: 2]."
+        }
+    ],
+    malapropisms: [
+        {
+            word: "Enervate",
+            soundsLike: "Energize",
+            actualMeaning: "To sap energy from[cite: 2].",
+            example: "The sun did not energize him; it <strong>enervated</strong> him[cite: 2]."
+        },
+        {
+            word: "Restive",
+            soundsLike: "Restful",
+            actualMeaning: "Restless; unruly under authority[cite: 2].",
+            example: "The crowd grew <strong>restive</strong> after three hours[cite: 2]."
+        },
+        {
+            word: "Ingenuous",
+            soundsLike: "Ingenious",
+            actualMeaning: "Naive and innocent[cite: 2].",
+            example: "Her <strong>ingenuous</strong> belief in strangers made her a target[cite: 2]."
+        },
+        {
+            word: "Demur",
+            soundsLike: "Demure",
+            actualMeaning: "To object or show reluctance[cite: 2].",
+            example: "He <strong>demurred</strong> when asked to work on Sunday[cite: 2]."
+        },
+        {
+            word: "Equivocal",
+            soundsLike: "Equivalent",
+            actualMeaning: "Confusing or ambiguous[cite: 2].",
+            example: "The test results were <strong>equivocal</strong>; we weren't sure what they meant[cite: 2]."
+        },
+        {
+            word: "Venal",
+            soundsLike: "Venial",
+            actualMeaning: "Susceptible to bribes; corrupt[cite: 2].",
+            example: "The <strong>venal</strong> official was easily bought[cite: 2]."
+        },
+        {
+            word: "Prosaic",
+            soundsLike: "Pros (Good)",
+            actualMeaning: "Dull and lacking imagination[cite: 2].",
+            example: "His <strong>prosaic</strong> mosaic was quite boring[cite: 2]."
+        }
+    ]
+};
 
         // --- Master Library Logic ---
         let masterLibrary = [];
